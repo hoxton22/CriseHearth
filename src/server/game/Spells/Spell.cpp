@@ -905,7 +905,7 @@ void Spell::SelectEffectImplicitTargets(SpellEffIndex effIndex, SpellImplicitTar
                             m_targets.SetSrc(*m_caster);
                             break;
                         default:
-                            ASSERT(false && "Spell::SelectEffectImplicitTargets: received not implemented select target reference type for TARGET_TYPE_OBJECT_SRC");
+                            //ASSERT(false && "Spell::SelectEffectImplicitTargets: received not implemented select target reference type for TARGET_TYPE_OBJECT_SRC");
                             break;
                     }
                     break;
@@ -922,7 +922,7 @@ void Spell::SelectEffectImplicitTargets(SpellEffIndex effIndex, SpellImplicitTar
                              SelectImplicitDestDestTargets(effIndex, targetType);
                              break;
                          default:
-                             ASSERT(false && "Spell::SelectEffectImplicitTargets: received not implemented select target reference type for TARGET_TYPE_OBJECT_DEST");
+                             //ASSERT(false && "Spell::SelectEffectImplicitTargets: received not implemented select target reference type for TARGET_TYPE_OBJECT_DEST");
                              break;
                      }
                      break;
@@ -936,7 +936,7 @@ void Spell::SelectEffectImplicitTargets(SpellEffIndex effIndex, SpellImplicitTar
                             SelectImplicitTargetObjectTargets(effIndex, targetType);
                             break;
                         default:
-                            ASSERT(false && "Spell::SelectEffectImplicitTargets: received not implemented select target reference type for TARGET_TYPE_OBJECT");
+                            //ASSERT(false && "Spell::SelectEffectImplicitTargets: received not implemented select target reference type for TARGET_TYPE_OBJECT");
                             break;
                     }
                     break;
@@ -946,7 +946,7 @@ void Spell::SelectEffectImplicitTargets(SpellEffIndex effIndex, SpellImplicitTar
             TC_LOG_DEBUG("spells", "SPELL: target type %u, found in spellID %u, effect %u is not implemented yet!", m_spellInfo->Id, effIndex, targetType.GetTarget());
             break;
         default:
-            ASSERT(false && "Spell::SelectEffectImplicitTargets: received not implemented select target category");
+            //ASSERT(false && "Spell::SelectEffectImplicitTargets: received not implemented select target category");
             break;
     }
 }
@@ -955,7 +955,7 @@ void Spell::SelectImplicitChannelTargets(SpellEffIndex effIndex, SpellImplicitTa
 {
     if (targetType.GetReferenceType() != TARGET_REFERENCE_TYPE_CASTER)
     {
-        ASSERT(false && "Spell::SelectImplicitChannelTargets: received not implemented target reference type");
+        //ASSERT(false && "Spell::SelectImplicitChannelTargets: received not implemented target reference type");
         return;
     }
 
@@ -994,7 +994,7 @@ void Spell::SelectImplicitChannelTargets(SpellEffIndex effIndex, SpellImplicitTa
             m_targets.SetDst(*channeledSpell->GetCaster());
             break;
         default:
-            ASSERT(false && "Spell::SelectImplicitChannelTargets: received not implemented target type");
+            //ASSERT(false && "Spell::SelectImplicitChannelTargets: received not implemented target type");
             break;
     }
 }
@@ -1003,7 +1003,7 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
 {
     if (targetType.GetReferenceType() != TARGET_REFERENCE_TYPE_CASTER)
     {
-        ASSERT(false && "Spell::SelectImplicitNearbyTargets: received not implemented target reference type");
+        //ASSERT(false && "Spell::SelectImplicitNearbyTargets: received not implemented target reference type");
         return;
     }
 
@@ -1028,7 +1028,7 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
             range = m_spellInfo->GetMaxRange(m_spellInfo->IsPositive(), m_caster, this);
             break;
         default:
-            ASSERT(false && "Spell::SelectImplicitNearbyTargets: received not implemented selection check type");
+            //ASSERT(false && "Spell::SelectImplicitNearbyTargets: received not implemented selection check type");
             break;
     }
 
@@ -1101,7 +1101,7 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
             m_targets.SetDst(*target);
             break;
         default:
-            ASSERT(false && "Spell::SelectImplicitNearbyTargets: received not implemented target object type");
+            //ASSERT(false && "Spell::SelectImplicitNearbyTargets: received not implemented target object type");
             break;
     }
 
@@ -1112,7 +1112,7 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTarge
 {
     if (targetType.GetReferenceType() != TARGET_REFERENCE_TYPE_CASTER)
     {
-        ASSERT(false && "Spell::SelectImplicitConeTargets: received not implemented target reference type");
+        //ASSERT(false && "Spell::SelectImplicitConeTargets: received not implemented target reference type");
         return;
     }
     std::list<WorldObject*> targets;
@@ -1177,7 +1177,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
             break;
         }
         default:
-            ASSERT(false && "Spell::SelectImplicitAreaTargets: received not implemented target reference type");
+            //ASSERT(false && "Spell::SelectImplicitAreaTargets: received not implemented target reference type");
             return;
     }
 
@@ -1199,7 +1199,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
             center = referer;
             break;
          default:
-             ASSERT(false && "Spell::SelectImplicitAreaTargets: received not implemented target reference type");
+             //ASSERT(false && "Spell::SelectImplicitAreaTargets: received not implemented target reference type");
              return;
     }
 

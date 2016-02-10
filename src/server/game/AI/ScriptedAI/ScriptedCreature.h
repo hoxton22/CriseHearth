@@ -32,7 +32,7 @@ template<class T, class U>
 T* EnsureAI(U* ai)
 {
     T* cast_ai = dynamic_cast<T*>(ai);
-    ASSERT(cast_ai);
+    //ASSERT(cast_ai);
     return cast_ai;
 };
 

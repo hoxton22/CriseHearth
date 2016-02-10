@@ -170,7 +170,7 @@ void GameObject::RemoveFromWorld()
     }
 }
 
-bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, uint32 /*phaseMask*/, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit)
+bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, uint32 /*phaseMask*/, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit, float size)
 {
     ASSERT(map);
     SetMap(map);
@@ -222,7 +222,12 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
 
     UpdateRotationFields(rotation2, rotation3);              // GAMEOBJECT_FACING, GAMEOBJECT_ROTATION, GAMEOBJECT_PARENTROTATION+2/3
 
-    SetObjectScale(goinfo->size);
+    if (size >= 0.0f)
+
+		SetObjectScale(size);
+	
+	else
+	SetObjectScale(goinfo->size);
 
     SetUInt32Value(GAMEOBJECT_FACTION, goinfo->faction);
     SetUInt32Value(GAMEOBJECT_FLAGS, goinfo->flags);
@@ -826,6 +831,7 @@ void GameObject::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
     data.go_state = GetGoState();
     data.spawnMask = spawnMask;
     data.artKit = GetGoArtKit();
+	data.size = GetFloatValue(OBJECT_FIELD_SCALE_X);
 
     // Update in DB
     SQLTransaction trans = WorldDatabase.BeginTransaction();
@@ -852,6 +858,7 @@ void GameObject::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
     stmt->setInt32(index++, int32(m_respawnDelayTime));
     stmt->setUInt8(index++, GetGoAnimProgress());
     stmt->setUInt8(index++, uint8(GetGoState()));
+	stmt->setFloat(index++, GetFloatValue(OBJECT_FIELD_SCALE_X));
     trans->Append(stmt);
 
     WorldDatabase.CommitTransaction(trans);
@@ -882,9 +889,10 @@ bool GameObject::LoadGameObjectFromDB(ObjectGuid::LowType spawnId, Map* map, boo
     uint32 animprogress = data->animprogress;
     GOState go_state = data->go_state;
     uint32 artKit = data->artKit;
+	float size = data->size;
 
     m_spawnId = spawnId;
-    if (!Create(map->GenerateLowGuid<HighGuid::GameObject>(), entry, map, phaseMask, x, y, z, ang, rotation0, rotation1, rotation2, rotation3, animprogress, go_state, artKit))
+    if (!Create(map->GenerateLowGuid<HighGuid::GameObject>(), entry, map, phaseMask, x, y, z, ang, rotation0, rotation1, rotation2, rotation3, animprogress, go_state, artKit, size))
         return false;
 
     if (data->phaseid)
@@ -1325,6 +1333,8 @@ void GameObject::Use(Unit* user)
             {
                 // the distance between this slot and the center of the go - imagine a 1D space
                 float relativeDistance = (info->size*itr->first) - (info->size*(info->chair.chairslots - 1) / 2.0f);
+				if (const GameObjectData* data = GetGOData())
+					relativeDistance = (data->size*itr->first) - (data->size*(info->chair.chairslots - 1) / 2.0f);
 
                 float x_i = GetPositionX() + relativeDistance * std::cos(orthogonalOrientation);
                 float y_i = GetPositionY() + relativeDistance * std::sin(orthogonalOrientation);
@@ -1648,6 +1658,28 @@ void GameObject::Use(Unit* user)
 
             user->RemoveAurasByType(SPELL_AURA_MOUNTED);
             spellId = info->spellCaster.spell;
+
+			//GOB TELEPORTER CUSTOM
+
+			if (info->entry > 10000000)
+			{
+				PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_GAMEOBJECT_TELE);
+				stmt->setUInt64(0, info->entry);
+				PreparedQueryResult result = WorldDatabase.Query(stmt);
+
+				if (result)
+				{
+					Field* fields = result->Fetch();
+					float x = fields[0].GetFloat();
+					float y = fields[1].GetFloat();
+					float z = fields[2].GetFloat();
+					uint16 mapId = fields[3].GetUInt64();
+					float o = fields[4].GetFloat();
+
+					Player* player = user->ToPlayer();
+					player->TeleportTo(mapId, x, y, z, o, TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET);
+				}
+			}
 
             AddUse();
             break;

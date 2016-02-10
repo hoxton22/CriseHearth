@@ -63,7 +63,7 @@ public:
             { "dev",              rbac::RBAC_PERM_COMMAND_DEV,              false, &HandleDevCommand,              "" },
             { "die",              rbac::RBAC_PERM_COMMAND_DIE,              false, &HandleDieCommand,              "" },
             { "dismount",         rbac::RBAC_PERM_COMMAND_DISMOUNT,         false, &HandleDismountCommand,         "" },
-            { "distance",         rbac::RBAC_PERM_COMMAND_DISTANCE,         false, &HandleGetDistanceCommand,      "" },
+            { "distance2",         rbac::RBAC_PERM_COMMAND_DISTANCE,         false, &HandleGetDistanceCommand,      "" },
             { "freeze",           rbac::RBAC_PERM_COMMAND_FREEZE,           false, &HandleFreezeCommand,           "" },
             { "gps",              rbac::RBAC_PERM_COMMAND_GPS,              false, &HandleGPSCommand,              "" },
             { "guid",             rbac::RBAC_PERM_COMMAND_GUID,             false, &HandleGUIDCommand,             "" },
@@ -100,9 +100,358 @@ public:
             { "wchange",          rbac::RBAC_PERM_COMMAND_WCHANGE,          false, &HandleChangeWeather,           "" },
             { "mailbox",          rbac::RBAC_PERM_COMMAND_MAILBOX,          false, &HandleMailBoxCommand,          "" },
             { "auras  ",          rbac::RBAC_PERM_COMMAND_LIST_AURAS,       false, &HandleAurasCommand,            "" },
+			{ "death", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleMortCommand, "" },
+			{ "combat", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleLutteCommand, "" },
+			{ "camouflage", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleTraquerCommand, "" },
+			{ "lire", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleLireCommand, "" },
+			{ "ligoter", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleAttacherCommand, "" },
+			{ "ivre", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleExcesCommand, "" },
+			{ "livre", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleLivreCommand, "" },
+			{ "ombrelle", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleOmbrelleCommand, "" },
+			{ "carquois", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleCarquoisCommand, "" },
+			{ "sac", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleSacCommand, "" },
+			{ "bondir", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleBondirCommand, "" },
+			{ "vomir", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleVomirCommand, "" },
+			{ "base", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleBaseCommand, "" },
+			{ "invisible", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleInvisibleCommand, "" },
+			{ "sang", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleSangCommand, "" },
+			{ "info", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleInfoCommand, "" },
+			{ "database", rbac::RBAC_PERM_COMMAND_KICK, true, &HandleDebugDatabase, "" },
+			{ "selfie", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleSelfieCommand, "" },
+			{ "custom", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleCustomCommand, "" },
+			{ "emote", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleEmoteCommand, "" },
+			{ "mount", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleMountCommand, "" },
+			{ "dupecore", rbac::RBAC_PERM_COMMAND_KICK, false, &HandleModelCommand, "" },
+			{ "distance", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleDistanceCommand, "" },
+			// { "nein", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleNeinCommand, "" },
+			{ "coredebug", rbac::RBAC_PERM_COMMAND_KICK, false, &HandleArrayCommand, "" },
+			{ "addw", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleAddwCommand, "" },
+			// { "rotate", rbac::RBAC_PERM_COMMAND_KICK, false, &HandleRotateCommand, "" },
+			{ "upmythic", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleUpdateItemMyth, "" },
+			{ "uphero", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleUpdateItemHero, "" },
+			{ "uplfr", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleUpdateItemLfr, "" },
+			//{ "upstep1", rbac::RBAC_PERM_COMMAND_KICK, false, &HandleUpdateItem1, "" },
+			{ "upstep2", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleUpdateItem2, "" },
+			{ "upstep3", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleUpdateItem3, "" },
         };
         return commandTable;
     }
+	
+	static bool checkItemPrivate(ChatHandler* handler, uint32 itemId)
+	{
+		if (handler->GetSession()->GetSecurity() >= 2)
+		{
+			handler->SendSysMessage("T es MJ mais tu t ajoutes un item priva fais gaffe bb");
+			return true;
+		}
+		ObjectGuid::LowType guid = handler->GetSession()->GetAccountGUID().GetCounter();
+		switch (itemId){
+			//Premiere semaine
+		case 500247:{if (guid != 143) return false; break; } // Dim, Tranchant de Dalaran
+		case 500267:{if (guid != 143) return false; break; }  // Dim, Héritage de Vaen'del
+		case 500039:{if (guid != 636) return false; break; } // Theodorus, Helce'Owä, le sceptre des neiges
+		case 500028:{if (guid != 69) return false; break; }  // Kehonidas , Braies du Belliciste
+			//Deuxieme semaine
+		case 500564:{if (guid != 267) return false; break; }  // Bern', Le Lixaxil
+		case 500355:{if (guid != 267) return false; break; } // Bern', Véloce, la dévoreuse d'existence
+		case 500317:{if (guid != 267) return false; break; } // Bern', Véloce, la dévoreuse de magie
+		case 500272:{if (guid != 636) return false; break; } // Vénéficius, Grande lame de péril
+		case 500522:{if (guid != 5) return false; break; }  // Diantre, Lunettes rondes
+			//Troisième semaine
+		case 500681:{if (guid != 77 || guid != 889 || guid != 350) return false; break; } //Shalimar, Eviscératrice de la Reine Antique
+		case 500682:{if (guid != 77 || guid != 889 || guid != 350) return false; break; } //Shalimar, Vision de l'Abstraction
+		case 500089:{if (guid != 244) return false; break; } // Osseux, Cape longue des Kor'krons
+
+		};
+		return true;
+	}
+
+	static bool HandleUpdateItemMyth(ChatHandler* handler, char const* args)
+	{
+		if (!*args)
+			return false;
+
+		TC_LOG_DEBUG("chat.log.whisper", "%s a fait un update mythique.", handler->GetSession()->GetPlayer()->GetName().c_str());
+
+		//char* temp1 = (char*)args;
+		//char* temp2 = (char*)args;
+
+		ObjectGuid::LowType guid = strtoull(args, nullptr, 10);
+
+		handler->SendSysMessage("Item devenu mythique. Time to deco/reco ! :)");
+
+		SQLTransaction trans = CharacterDatabase.BeginTransaction();
+		PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_FOR_MYTHIC);
+
+		stmt->setUInt32(0, 567);
+		stmt->setUInt64(1, guid);
+
+
+		CharacterDatabase.Execute(stmt);
+
+		return true;
+	}
+
+	static bool HandleUpdateItem1(ChatHandler* handler, char const* args)
+	{
+		if (!*args)
+			return false;
+
+		ObjectGuid::LowType guid = strtoull(args, nullptr, 10);
+
+		TC_LOG_DEBUG("chat.log.whisper", "%s a fait un update artisanat 1.", handler->GetSession()->GetPlayer()->GetName().c_str());
+
+		handler->SendSysMessage("Item devenu Artisanat-ETAPE 1. Time to deco/reco ! :)");
+
+		SQLTransaction trans = CharacterDatabase.BeginTransaction();
+		PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_FOR_MYTHIC);
+
+		stmt->setUInt32(0, 525);
+		stmt->setUInt64(1, guid);
+
+
+		CharacterDatabase.Execute(stmt);
+
+
+		return true;
+	}
+
+	static bool HandleUpdateItem2(ChatHandler* handler, char const* args)
+	{
+		if (!*args)
+			return false;
+
+		TC_LOG_DEBUG("chat.log.whisper", "%s a fait un update artisanat 2.", handler->GetSession()->GetPlayer()->GetName().c_str());
+
+		ObjectGuid::LowType guid = strtoull(args, nullptr, 10);
+
+		handler->SendSysMessage("Item devenu Artisanat-ETAPE 2. Time to deco/reco ! :)");
+
+		SQLTransaction trans = CharacterDatabase.BeginTransaction();
+		PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_FOR_MYTHIC);
+
+		stmt->setUInt32(0, 558);
+		stmt->setUInt64(1, guid);
+
+
+		CharacterDatabase.Execute(stmt);
+
+
+		return true;
+	}
+
+	static bool HandleUpdateItem3(ChatHandler* handler, char const* args)
+
+	{
+		if (!*args)
+			return false;
+
+		TC_LOG_DEBUG("chat.log.whisper", "%s a fait un update artisanat 3.", handler->GetSession()->GetPlayer()->GetName().c_str());
+
+		ObjectGuid::LowType guid = strtoull(args, nullptr, 10);
+
+		handler->SendSysMessage("Item devenu Artisanat-ETAPE 3. Time to deco/reco ! :)");
+
+		SQLTransaction trans = CharacterDatabase.BeginTransaction();
+		PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_FOR_MYTHIC);
+
+		stmt->setUInt32(0, 559);
+		stmt->setUInt64(1, guid);
+
+
+		CharacterDatabase.Execute(stmt);
+
+
+		return true;
+	}
+
+	static bool HandleUpdateItemHero(ChatHandler* handler, char const* args)
+
+	{
+		if (!*args)
+			return false;
+
+		TC_LOG_DEBUG("chat.log.whisper", "%s a fait un update héroïque.", handler->GetSession()->GetPlayer()->GetName().c_str());
+
+		ObjectGuid::LowType guid = strtoull(args, nullptr, 10);
+
+		handler->SendSysMessage("Item devenu hero. Time to deco/reco ! :)");
+
+		SQLTransaction trans = CharacterDatabase.BeginTransaction();
+		PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_FOR_MYTHIC);
+
+		stmt->setUInt32(0, 566);
+		stmt->setUInt64(1, guid);
+
+
+		CharacterDatabase.Execute(stmt);
+
+		return true;
+	}
+
+	static bool HandleUpdateItemLfr(ChatHandler* handler, char const* args)
+	{
+		if (!*args)
+			return false;
+
+		TC_LOG_DEBUG("chat.log.whisper", "%s a fait un update LFR.", handler->GetSession()->GetPlayer()->GetName().c_str());
+
+		ObjectGuid::LowType guid = strtoull(args, nullptr, 10);
+
+		//char const* typeQuality = strtok(temp2, " ");
+
+		handler->SendSysMessage("Item devenu LFR. Time to deco/reco ! :)");
+
+		SQLTransaction trans = CharacterDatabase.BeginTransaction();
+		PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_FOR_MYTHIC);
+
+		stmt->setUInt32(0, 4860);
+		stmt->setUInt64(1, guid);
+
+
+		CharacterDatabase.Execute(stmt);
+
+		return true;
+	}
+
+	static bool HandleRotateCommand(ChatHandler* handler, char const* args)
+	{
+
+		Player* player = NULL;
+
+		if (!*args)
+			return false;
+
+		char* orientation = strtok(NULL, " ");
+		float o = float(atof(orientation));
+
+		player->Relocate(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), o);
+
+		return true;
+	}
+
+	static bool HandleAddwCommand(ChatHandler* handler, char const* args)
+	{
+		if (!*args)
+			return false;
+
+		TC_LOG_DEBUG("chat.log.whisper", "%s a fait un addw.", handler->GetSession()->GetPlayer()->GetName().c_str());
+
+		uint32 itemId = 0;
+
+		if (args[0] == '[')                                        // [name] manual form
+		{
+			char const* itemNameStr = strtok((char*)args, "]");
+
+			if (itemNameStr && itemNameStr[0])
+			{
+				std::string itemName = itemNameStr + 1;
+				auto itr = std::find_if(sItemSparseStore.begin(), sItemSparseStore.end(), [&itemName](ItemSparseEntry const* itemSparse)
+				{
+					for (uint32 i = 0; i < MAX_LOCALES; ++i)
+						if (itemName == itemSparse->Name->Str[i])
+							return true;
+					return false;
+				});
+
+				if (itr == sItemSparseStore.end())
+				{
+					handler->PSendSysMessage(LANG_COMMAND_COULDNOTFIND, itemNameStr + 1);
+					handler->SetSentErrorMessage(true);
+					return false;
+				}
+
+				itemId = itr->ID;
+			}
+			else
+				return false;
+		}
+		else                                                    // item_id or [name] Shift-click form |color|Hitem:item_id:0:0:0|h[name]|h|r
+		{
+			char const* id = handler->extractKeyFromLink((char*)args, "Hitem");
+			if (!id)
+				return false;
+			itemId = atoul(id);
+		}
+
+		if (!checkItemPrivate(handler, itemId))
+			return false;
+
+
+		char const* ccount = "1";
+		int32 count = 1;
+
+		if (ccount)
+			count = strtol(ccount, NULL, 10);
+
+		if (count == 0)
+			count = 1;
+
+		Player* player = handler->GetSession()->GetPlayer();
+		Player* playerTarget = handler->getSelectedPlayer();
+		if (!playerTarget)
+			playerTarget = player;
+
+		TC_LOG_DEBUG("misc", handler->GetTrinityString(LANG_ADDITEM), itemId, count);
+
+		ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
+		if (!itemTemplate)
+		{
+			handler->PSendSysMessage(LANG_COMMAND_ITEMIDINVALID, itemId);
+			handler->SetSentErrorMessage(true);
+			return false;
+		}
+
+		// Subtract
+		if (count < 0)
+		{
+			playerTarget->DestroyItemCount(itemId, -count, true, false);
+			handler->PSendSysMessage(LANG_REMOVEITEM, itemId, -count, handler->GetNameLink(playerTarget).c_str());
+			return true;
+		}
+
+		// Adding items
+		uint32 noSpaceForCount = 0;
+
+		// check space and find places
+		ItemPosCountVec dest;
+		InventoryResult msg = playerTarget->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, count, &noSpaceForCount);
+		if (msg != EQUIP_ERR_OK)                               // convert to possible store amount
+			count -= noSpaceForCount;
+
+		if (count == 0 || dest.empty())                         // can't add any
+		{
+			handler->PSendSysMessage(LANG_ITEM_CANNOT_CREATE, itemId, noSpaceForCount);
+			handler->SetSentErrorMessage(true);
+			return false;
+		}
+
+		Item* item = playerTarget->StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
+
+		ObjectGuid::LowType guid = item->GetGUID().GetCounter();
+
+		handler->PSendSysMessage("GUID : %d", guid);
+
+		// remove binding (let GM give it to another player later)
+		if (player == playerTarget)
+			for (ItemPosCountVec::const_iterator itr = dest.begin(); itr != dest.end(); ++itr)
+				if (Item* item1 = player->GetItemByPos(itr->pos))
+					item1->SetBinding(false);
+
+		if (count > 0 && item)
+		{
+			player->SendNewItem(item, count, false, true);
+			if (player != playerTarget)
+				playerTarget->SendNewItem(item, count, true, false);
+		}
+
+		if (noSpaceForCount > 0)
+			handler->PSendSysMessage(LANG_ITEM_CANNOT_CREATE, itemId, noSpaceForCount);
+
+		return true;
+	}
+
+
 
     static bool HandlePvPstatsCommand(ChatHandler * handler, char const* /*args*/)
     {
@@ -283,11 +632,25 @@ public:
         }
 
         // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
-        uint32 spellId = handler->extractSpellIdFromLink((char*)args);
+		uint32 spellId = handler->extractSpellIdFromLink((char*)args);
+
+		if (spellId == 172036 || spellId == 142873 || spellId == 163465 ||
+			spellId == 187998 || spellId == 190430 || spellId == 190429 ||
+			spellId == 190426 || spellId == 188438 || spellId == 185298 ||
+			spellId == 184452 || spellId == 185297 || spellId == 182669 ||
+			spellId == 181864 || spellId == 181827 || spellId == 66141 ||
+			spellId == 9454 || spellId == 1852)
+		{
+
+			handler->PSendSysMessage("Tu viens de tomber sur un spell crash. Heureusement qu'il est OFF !");
+			return true;
+		}
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
-            Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, target, target);
-
+		{
+			TC_LOG_DEBUG("chat.log.whisper", "%s fait .aura %d", handler->GetSession()->GetPlayer()->GetName().c_str(), spellId);
+			Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, target, target);
+		}
         return true;
     }
 
@@ -651,9 +1014,13 @@ public:
             return false;
         }
 
-        player->Dismount();
-        player->RemoveAurasByType(SPELL_AURA_MOUNTED);
-        return true;
+		player->Dismount();
+		player->SetSpeed(MOVE_WALK, 1, true);
+		player->SetSpeed(MOVE_RUN, 1, true);
+		player->SetSpeed(MOVE_SWIM, 1, true);
+		player->SetSpeed(MOVE_FLIGHT, 1, true);
+		player->RemoveAurasByType(SPELL_AURA_MOUNTED);
+		return true;
     }
 
     static bool HandleGUIDCommand(ChatHandler* handler, char const* /*args*/)
@@ -1195,6 +1562,10 @@ public:
                 return false;
             itemId = atoul(id);
         }
+		
+		if (!checkItemPrivate(handler, itemId))
+			return false;
+
 
         char const* ccount = strtok(NULL, " ");
 
@@ -2708,6 +3079,654 @@ public:
         }
         return true;
     }
+	
+	static bool HandleArrayCommand(ChatHandler* handler, char const* args)
+	{
+		if (!*args)
+			return false;
+
+		Unit* target = handler->getSelectedUnit();
+
+		if (!target)
+			return false;
+
+		// creature->TextEmote(args);
+		target->Talk(args, CHAT_MSG_SAY, LANG_UNIVERSAL, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), nullptr);
+
+		return true;
+	}
+
+	static bool HandleNeinCommand(ChatHandler* handler, char const* args)   //Titre de la fonction, il faut juste remplacer le "Nein" par le nom de ta commande. (Exemple : .toquer  deviendra HandlerToquerCommand ), touche à rien d'autre
+	{
+		int animId = 274;   				// Ici c'est l'ID utiliser. Genre là c'est 274, bah ton perso fera .debug anim 274
+		char* text = "l'affirme clairement : NON.";	// Ici c'est la phrase en émote que ton personnage fera. Ici ce sera "NomDuJoueur l'affirme clairement : NON"
+
+
+		// MAGIE DU CODE A NE PAS TOUCHER
+		char message[254];
+		std::string pName = handler->GetSession()->GetPlayer()->GetName();
+		sprintf(message, "%s \0", text);
+		handler->GetSession()->GetPlayer()->Talk(message, CHAT_MSG_EMOTE, LANG_UNIVERSAL, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), nullptr);
+		handler->GetSession()->GetPlayer()->HandleEmoteCommand(animId);
+		return true;
+
+	}
+
+	/// Calcul distance
+	static bool HandleDistanceCommand(ChatHandler* handler, char const* args)
+	{
+		//Phase 1 : recherche du type de la cible : gob, npc ou player ?
+		WorldObject* target;
+		std::string targetName;
+		if (!*args)
+		{
+			//Partie ciblage classique, si il y a pas d'args
+			target = handler->getSelectedObject();
+			if (!target)
+			{
+				handler->SendSysMessage("Vous n avez pas de cible, ni de guid, ni de nom de joueur");
+				return false;
+			}
+			targetName = target->GetName();
+		}
+		else
+		{
+			//Partie "joueur"
+			std::string nameTargetPlayer = (char*)args;
+			target = ObjectAccessor::FindPlayerByName(nameTargetPlayer);
+			if (!target)
+			{
+				//Partie "gob"
+				char* id = handler->extractKeyFromLink((char*)args, "Hgameobject");
+				if (!id)
+					return false;
+
+				ObjectGuid::LowType guidLow = strtoull(id, nullptr, 10);
+				if (!guidLow)
+					return false;
+
+				GameObject* object = NULL;
+				if (GameObjectData const* gameObjectData = sObjectMgr->GetGOData(guidLow))
+					object = handler->GetObjectGlobalyWithGuidOrNearWithDbGuid(guidLow, gameObjectData->id);
+
+				if (!object)
+				{
+					handler->PSendSysMessage("Le guid du gob ou le nom du joueur est invalide");
+					return false;
+				}
+				targetName = object->GetGOInfo()->name.c_str();
+				target = object;
+			}
+			else
+				targetName = target->GetName();
+		}
+		//Phase 2 tests de logique 
+
+		/*
+		Player* player = handler->GetSession()->GetPlayer();
+		if ((player->GetMapId() != target->GetMapId()) || (player->GetPhaseMask() != target->GetPhaseMask()))
+		{
+		handler->SendSysMessage("Vous n etes pas dans la meme zone ou phase que votre cible");
+		return false;
+		}*/
+		//Phase 3 : Calcul des positions et distance en mètres (à deux decimal pres, arrondi à l'inférieur )
+		double playerX = (trunc((handler->GetSession()->GetPlayer()->GetPositionX()) * 10 * 0.9144)) / 10;
+		double playerY = (trunc((handler->GetSession()->GetPlayer()->GetPositionY()) * 10 * 0.9144)) / 10;
+		double playerZ = (trunc((handler->GetSession()->GetPlayer()->GetPositionZ()) * 10 * 0.9144)) / 10;
+		double targetX = (trunc((target->GetPositionX()) * 10 * 0.9144)) / 10;
+		double targetY = (trunc((target->GetPositionY()) * 10 * 0.9144)) / 10;
+		double targetZ = (trunc((target->GetPositionZ()) * 10 * 0.9144)) / 10;
+
+		double distanceFull = sqrt((pow((playerX - targetX), 2)) + (pow((playerY - targetY), 2)) + (pow((playerZ - targetZ), 2)));
+		double distance = (trunc(distanceFull * 10)) / 10;
+
+		//Phase 4 : Envoi du message
+		if (distance > 300)
+			handler->SendSysMessage("Vous etes trop loin de votre cible, les mechants devs veulent pas vous dire la distance");
+		else if (distance < 1)
+			handler->PSendSysMessage("%s est a %2.0f cm de vous", targetName, distance);
+		else
+			handler->PSendSysMessage("%s est a %3.2f m de vous", targetName, distance);
+		return true;
+	}
+
+	static bool HandleModelCommand(ChatHandler* handler, char const* args)
+	{
+
+		Unit* p = handler->GetSession()->GetPlayer();
+		Unit* target = handler->getSelectedUnit();
+
+		uint32 spellId = 102284;
+		uint32 spellId2 = 111232;
+
+		if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
+			Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, p, target);
+
+		if (SpellInfo const* spellInfo2 = sSpellMgr->GetSpellInfo(spellId2))
+			Aura::TryRefreshStackOrCreate(spellInfo2, MAX_EFFECT_MASK, p, target);
+
+		return true;
+	}
+
+	//Le .mort
+
+	static bool HandleMortCommand(ChatHandler* handler, char const* args)
+	{
+		Unit* target = handler->getSelectedUnit();
+		if (!target)
+		{
+			handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+			handler->SetSentErrorMessage(true);
+			return false;
+		}
+
+		// number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
+		uint32 spellId = 85267;
+
+		if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
+			Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, target, target);
+
+		return true;
+	}
+
+
+	// Le .lutte
+
+	static bool HandleLutteCommand(ChatHandler* handler, char const* args)
+	{
+		Unit* target = handler->getSelectedUnit();
+		if (!target)
+		{
+			handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+			handler->SetSentErrorMessage(true);
+			return false;
+		}
+
+		// number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
+		uint32 spellId = 94610;
+
+		if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
+			Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, target, target);
+
+		return true;
+	}
+
+	//Le .traquer
+
+	static bool HandleTraquerCommand(ChatHandler* handler, char const* args)
+	{
+		Unit* target = handler->getSelectedUnit();
+		if (!target)
+		{
+			handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+			handler->SetSentErrorMessage(true);
+			return false;
+		}
+
+		// number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
+		uint32 spellId = 80264;
+
+		if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
+			Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, target, target);
+
+		return true;
+	}
+
+	// Le .lire ( PS : H devrait essayer de retirer le timer sur le le spell )
+
+
+	static bool HandleLireCommand(ChatHandler* handler, char const* args)
+	{
+		Unit* target = handler->getSelectedUnit();
+		if (!target)
+		{
+			handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+			handler->SetSentErrorMessage(true);
+			return false;
+		}
+
+		// number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
+		uint32 spellId = 147164;
+
+		if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
+			Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, target, target);
+
+		return true;
+	}
+	// Le .attacher
+
+	static bool HandleAttacherCommand(ChatHandler* handler, char const* args)
+	{
+		Unit* target = handler->getSelectedUnit();
+		if (!target)
+		{
+			handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+			handler->SetSentErrorMessage(true);
+			return false;
+		}
+
+		// number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
+		uint32 spellId = 93090;
+
+		if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
+			Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, target, target);
+
+		return true;
+	}
+
+	// Le .exces
+
+	static bool HandleExcesCommand(ChatHandler* handler, char const* args)
+	{
+		Unit* target = handler->getSelectedUnit();
+		if (!target)
+		{
+			handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+			handler->SetSentErrorMessage(true);
+			return false;
+		}
+
+		// number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
+		uint32 spellId = 80109;
+
+		if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
+			Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, target, target);
+
+		return true;
+	}
+
+	// Le .livre
+
+	static bool HandleLivreCommand(ChatHandler* handler, char const* args)
+	{
+		Unit* target = handler->getSelectedUnit();
+		if (!target)
+		{
+			handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+			handler->SetSentErrorMessage(true);
+			return false;
+		}
+
+		// number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
+		uint32 spellId = 124064;
+
+		if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
+			Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, target, target);
+
+		return true;
+	}
+
+	// Le .ombrelle
+
+	static bool HandleOmbrelleCommand(ChatHandler* handler, char const* args)
+	{
+		Unit* target = handler->getSelectedUnit();
+		if (!target)
+		{
+			handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+			handler->SetSentErrorMessage(true);
+			return false;
+		}
+
+		// number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
+		uint32 spellId = 131076;
+
+		if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
+			Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, target, target);
+
+		return true;
+	}
+
+
+	//Le .carquois
+
+	static bool HandleCarquoisCommand(ChatHandler* handler, char const* args)
+	{
+		Unit* target = handler->getSelectedUnit();
+		if (!target)
+		{
+			handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+			handler->SetSentErrorMessage(true);
+			return false;
+		}
+
+		int choix = atoi(args);
+		uint32 spellId;
+		// number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
+		if (!args)
+			spellId = 80642;
+		switch (choix)
+		{
+		case 1: spellId = 80642; break;
+		case 2: spellId = 125165; break;
+		default: handler->SetSentErrorMessage(true); return false;
+		}
+
+		if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
+			Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, target, target);
+
+		return true;
+	}
+
+	//Le .sac
+
+	static bool HandleSacCommand(ChatHandler* handler, char const* args)
+	{
+		Unit* target = handler->getSelectedUnit();
+		if (!target)
+		{
+			handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+			handler->SetSentErrorMessage(true);
+			return false;
+		}
+
+		int choix = atoi(args);
+		uint32 spellId;
+		// number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
+		if (!args)
+			spellId = 105008;
+
+		switch (choix)
+		{
+		case 1: spellId = 105008; break;
+		case 2: spellId = 104953; break;
+		case 3: spellId = 85500; break;
+		case 4: spellId = 89695; break;
+		case 5: spellId = 88330; break;
+		case 6: spellId = 78012; break;
+		case 7: spellId = 90085; break;
+		case 8: spellId = 84516; break;
+		case 9: spellId = 122159; break;
+		case 10: spellId = 131732; break;
+		case 11: spellId = 79252; break;
+		case 12: spellId = 106356; break;
+		case 13: spellId = 168026; break;
+		case 14: spellId = 163398; break;
+		default: handler->SetSentErrorMessage(true); return false;
+		}
+
+		if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
+			Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, target, target);
+
+		return true;
+	}
+
+	//Le .bondir
+
+	static bool HandleBondirCommand(ChatHandler* handler, char const* /*args*/)
+	{
+		Unit* unit = handler->getSelectedUnit();
+		if (!unit)
+			return false;
+		uint32 spellId = 55518;
+		handler->GetSession()->GetPlayer()->CastSpell(unit, spellId, true);
+		return true;
+	}
+
+	//Le .vomir
+
+	static bool HandleVomirCommand(ChatHandler* handler, char const* /*args*/)
+	{
+		Unit* unit = handler->getSelectedUnit();
+		if (!unit)
+			return false;
+		uint32 spellId = 85234;
+		handler->GetSession()->GetPlayer()->CastSpell(unit, spellId, true);
+		return true;
+	}
+
+	// Le .base
+	static bool HandleBaseCommand(ChatHandler* handler, char const* args)
+	{
+		Unit* target = handler->getSelectedUnit();
+		if (!target)
+			target = handler->GetSession()->GetPlayer();
+
+		target->SetObjectScale(1);
+		target->SetSpeed(MOVE_WALK, 1, true);
+		target->SetSpeed(MOVE_RUN, 1, true);
+		target->SetSpeed(MOVE_SWIM, 1, true);
+		target->SetSpeed(MOVE_FLIGHT, 1, true);
+		target->DeMorph();
+		target->RemoveAllAuras();
+		target->SetCanFly(false);
+
+		handler->PSendSysMessage("Toutes les valeurs restaurées par défaut.");
+
+		return true;
+	}
+
+
+	//Le .invisible
+
+	static bool HandleInvisibleCommand(ChatHandler* handler, char const* args)
+	{
+		Unit* target = handler->getSelectedUnit();
+		if (!target)
+			target = handler->GetSession()->GetPlayer();
+
+		// check online security
+		else if (target->GetTypeId() == TYPEID_PLAYER && handler->HasLowerSecurity(target->ToPlayer(), ObjectGuid::Empty))
+			return false;
+
+		target->SetDisplayId(31515);
+
+		return true;
+	}
+
+
+
+	static bool HandleSangCommand(ChatHandler* handler, char const* args)
+	{
+		Unit* target = handler->getSelectedUnit();
+		if (!target)
+		{
+			handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+			handler->SetSentErrorMessage(true);
+			return false;
+		}
+
+		// number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
+		uint32 spellId = 169471;
+
+		if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
+			Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, target, target);
+
+		return true;
+	}
+
+
+	static bool HandleInfoCommand(ChatHandler * handler, char const* /*args*/)
+	{
+		uint32 playersNum = sWorld->GetPlayerCount();
+		uint32 maxPlayersNum = sWorld->GetMaxPlayerCount();
+		std::string uptime = secsToTimeString(sWorld->GetUptime());
+
+		handler->PSendSysMessage(LANG_CONNECTED_PLAYERS, playersNum, maxPlayersNum);
+		handler->PSendSysMessage(LANG_UPTIME, uptime.c_str());
+
+		return true;
+	}
+
+	static bool HandleDebugDatabase(ChatHandler* handler, char const* args) // party
+	{
+		if (!*args)
+			return false;
+
+		char* temp = (char*)args;
+		char* min = strtok(temp, "-");
+		char* max = strtok(NULL, ";");
+		char* rollBaby = strtok(NULL, "\0");
+		if (!min || !max || !rollBaby)
+			return false;
+
+
+		int intminimum = atoi(min);
+		int intmaximum = atoi(max);
+		int introll = atoi(rollBaby);
+		uint32 minimum = (uint32)intminimum;
+		uint32 maximum = (uint32)intmaximum;
+		uint32 roll = (uint32)introll;
+
+		Player* p = handler->GetSession()->GetPlayer();
+
+		if (minimum > maximum || maximum > 10000)
+			return false;
+
+		if (roll > maximum || roll < minimum)
+			return false;
+
+		WorldPackets::Misc::RandomRoll randomRoll;
+		randomRoll.Min = minimum;
+		randomRoll.Max = maximum;
+		randomRoll.Result = roll;
+		randomRoll.Roller = p->GetGUID();
+		randomRoll.RollerWowAccount = handler->GetSession()->GetAccountGUID();
+		if (p->GetGroup())
+			p->GetGroup()->BroadcastPacket(randomRoll.Write(), false);
+		else
+			handler->GetSession()->SendPacket(randomRoll.Write());
+
+		return true;
+
+	}
+
+	static bool HandleSelfieCommand(ChatHandler* handler, char const* args)
+	{
+		if (!*args)
+			return false;
+
+		Player* p = handler->GetSession()->GetPlayer();
+
+		uint32 spellId = 182483;
+		uint32 spellId2 = 84749;
+
+		WorldPacket data;
+		if (strncmp(args, "on", 3) == 0)
+		{
+			if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
+				Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, p, p);
+
+			if (SpellInfo const* spellInfo2 = sSpellMgr->GetSpellInfo(spellId2))
+				Aura::TryRefreshStackOrCreate(spellInfo2, MAX_EFFECT_MASK, p, p);
+		}
+		else if (strncmp(args, "off", 4) == 0)
+		{
+			p->RemoveAurasDueToSpell(spellId);
+			p->RemoveAurasDueToSpell(spellId2);
+		}
+
+		else
+		{
+			handler->SendSysMessage(LANG_USE_BOL);
+			return false;
+		}
+
+		return true;
+	}
+	static bool HandleEmoteCommand(ChatHandler* handler, char const* args)
+	{
+		if (!*args)
+		{
+			handler->SendSysMessage("Pas de texte, pas de .emote !");
+			return false;
+		}
+		char message[500];
+		char* text = (char*)args;
+		std::string pName = handler->GetSession()->GetPlayer()->GetName();
+		sprintf(message, "%s (%s)\0", text, pName.c_str());
+
+		handler->GetSession()->GetPlayer()->Talk(message, CHAT_MSG_MONSTER_EMOTE, LANG_UNIVERSAL, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), nullptr);
+		return true;
+	}
+
+	static bool HandleCustomCommand(ChatHandler* handler, char const* args)
+	{
+		TC_LOG_DEBUG("chat.log.whisper", "Negre de %s fait un .custom", handler->GetSession()->GetPlayer()->GetName().c_str());
+		uint32 objectId = 999999;
+		Player* player = handler->GetSession()->GetPlayer();
+
+		const GameObjectTemplate* objectInfo = sObjectMgr->GetGameObjectTemplate(objectId);
+
+		float x = float(player->GetPositionX());
+		float y = float(player->GetPositionY());
+		float z = float(player->GetPositionZ());
+		float o = float(player->GetOrientation());
+		float ang = player->GetOrientation();
+		float rot2 = std::sin(ang / 2);
+		float rot3 = std::cos(ang / 2);
+		Map* map = player->GetMap();
+
+		uint32 spawntm = 400;
+
+		GameObject* object = player->SummonGameObject(objectId, x, y, z, ang, 0, 0, rot2, rot3, spawntm);
+
+		player->SummonGameObject(objectId, x, y, z, ang, 0, 0, rot2, rot3, spawntm);
+
+		object->DestroyForNearbyPlayers();
+		object->UpdateObjectVisibility();
+
+		if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(110851))
+			Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
+
+		object->Use(handler->GetSession()->GetPlayer());
+
+		GameObject* go = player->FindNearestGameObjectOfType(GAMEOBJECT_TYPE_BARBER_CHAIR, 0.01f);
+
+		player->SetStandState(UnitStandStateType(UNIT_STAND_STATE_SIT_LOW_CHAIR + go->GetGOInfo()->barberChair.chairheight));
+
+		return true;
+	}
+
+	static bool HandleMountCommand(ChatHandler* handler, char const* args)
+	{
+		Unit* target = handler->getSelectedUnit();
+		Creature* creature = handler->getSelectedCreature();
+		Player* player = handler->GetSession()->GetPlayer();
+
+		if (!*args)
+			return false;
+
+		if (!target)
+			return false;
+
+		TC_LOG_DEBUG("chat.log.whisper", "Negre de %s fait un .mount", handler->GetSession()->GetPlayer()->GetName().c_str());
+
+		WorldPacket data;
+		if (strncmp(args, "self", 3) == 0)
+		{
+
+			if (!target || target != creature)
+				return false;
+
+			uint32 baseEntry;
+			baseEntry = creature->GetDisplayId();
+			player->Mount(baseEntry);
+			player->SetSpeed(MOVE_WALK, 2, true);
+			player->SetSpeed(MOVE_RUN, 2, true);
+			player->SetSpeed(MOVE_SWIM, 2, true);
+			player->SetSpeed(MOVE_FLIGHT, 2, true);
+			return true;
+		}
+
+		const char* entry;
+		entry = strtok((char*)args, " ");
+
+		const uint32 newEntry = uint32(atoi(entry));
+
+		// CreatureModelInfo const* modelInfo = sObjectMgr->GetCreatureModelInfo(newEntry);
+
+		target->Mount(newEntry);
+
+		target->SetSpeed(MOVE_WALK, 2, true);
+		target->SetSpeed(MOVE_RUN, 2, true);
+		target->SetSpeed(MOVE_SWIM, 2, true);
+		//target->SetSpeed(MOVE_TURN,    ASpeed, true);
+		target->SetSpeed(MOVE_FLIGHT, 2, true);
+
+		return true;
+	}
+
 };
 
 void AddSC_misc_commandscript()

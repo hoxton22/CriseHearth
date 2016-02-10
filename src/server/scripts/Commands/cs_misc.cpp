@@ -160,7 +160,6 @@ public:
 			//Troisième semaine
 		case 500681:{if (guid != 77 || guid != 889 || guid != 350) return false; break; } //Shalimar, Eviscératrice de la Reine Antique
 		case 500682:{if (guid != 77 || guid != 889 || guid != 350) return false; break; } //Shalimar, Vision de l'Abstraction
-		case 500089:{if (guid != 244) return false; break; } // Osseux, Cape longue des Kor'krons
 
 		};
 		return true;

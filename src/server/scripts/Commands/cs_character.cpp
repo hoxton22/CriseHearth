@@ -498,10 +498,16 @@ public:
         if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
             return false;
 
+		if (target->getRace() == RACE_PANDAREN_ALLIANCE)
+		{
+			handler->PSendSysMessage("Les pandas ne peuvent pas changer de faction.");
+			return true;
+		} 
+
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
         stmt->setUInt16(0, uint16(AT_LOGIN_CHANGE_FACTION));
         if (target)
-        {
+        {										
             handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER, handler->GetNameLink(target).c_str());
             target->SetAtLoginFlag(AT_LOGIN_CHANGE_FACTION);
             stmt->setUInt64(1, target->GetGUID().GetCounter());

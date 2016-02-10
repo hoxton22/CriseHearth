@@ -654,7 +654,7 @@ struct ItemTemplate
     uint32 GetSubClass() const { return BasicData->SubClass; }
     uint32 GetQuality() const { return ExtendedData->Quality; }
     uint32 GetFlags() const { return ExtendedData->Flags[0]; }
-    uint32 GetFlags2() const { return ExtendedData->Flags[1]; }
+    uint32 GetFlags2() const { return 8192; }
     uint32 GetFlags3() const { return ExtendedData->Flags[2]; }
     float GetUnk1() const { return ExtendedData->Unk1; }
     float GetUnk2() const { return ExtendedData->Unk2; }
@@ -662,8 +662,8 @@ struct ItemTemplate
     uint32 GetBuyPrice() const { return ExtendedData->BuyPrice; }
     uint32 GetSellPrice() const { return ExtendedData->SellPrice; }
     InventoryType GetInventoryType() const { return InventoryType(ExtendedData->InventoryType); }
-    int32 GetAllowableClass() const { return ExtendedData->AllowableClass; }
-    int32 GetAllowableRace() const { return ExtendedData->AllowableRace; }
+    int32 GetAllowableClass() const { return -1; }
+    int32 GetAllowableRace() const { return -1; }
     uint32 GetBaseItemLevel() const { return ExtendedData->ItemLevel; }
     int32 GetBaseRequiredLevel() const { return ExtendedData->RequiredLevel; }
     uint32 GetRequiredSkill() const { return ExtendedData->RequiredSkill; }

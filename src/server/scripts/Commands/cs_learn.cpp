@@ -434,6 +434,14 @@ public:
         uint32 spellId = handler->extractSpellIdFromLink((char*)args);
         if (!spellId)
             return false;
+		
+		if (spellId == 668 || spellId == 813 || spellId == 17737
+			|| spellId == 671 || spellId == 814 || spellId == 29932
+			|| spellId == 69270 || spellId == 7340 || spellId == 69269
+			|| spellId == 672 || spellId == 669 || spellId == 108130
+			|| spellId == 108131 || spellId == 108127 || spellId == 670
+			|| spellId == 816 || spellId == 7341)
+			return false;
 
         char const* allStr = strtok(NULL, " ");
         bool allRanks = allStr ? (strncmp(allStr, "all", strlen(allStr)) == 0) : false;

@@ -250,6 +250,8 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
         return;
 
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(cast.Cast.SpellID);
+	TC_LOG_DEBUG("chat.log.whisper", "%s lance le sort %d depuis son grimoire.", GetPlayer()->GetName().c_str(), cast.Cast.SpellID);
+
     if (!spellInfo)
     {
         TC_LOG_ERROR("network", "WORLD: unknown spell id %u", cast.Cast.SpellID);
@@ -485,6 +487,45 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorI
     Unit* unit = ObjectAccessor::GetUnit(*_player, guid);
     if (!unit)
         return;
+	
+    if (Creature* creature = unit->ToCreature())
+    {
+        int32 outfitId = creature->GetOutfit();
+        if (outfitId < 0)
+        {
+            const CreatureOutfitContainer& outfits = sObjectMgr->GetCreatureOutfitMap();
+            CreatureOutfitContainer::const_iterator it = outfits.find(-outfitId);
+            if (it != outfits.end())
+            {
+                CreatureOutfit const& outfit = it->second;
+                if (creature->GetDisplayId() == outfit.displayId)
+                {
+                    WorldPackets::Spells::MirrorImageComponentedData packet;
+                    packet.UnitGUID = guid;
+                    packet.DisplayID = outfit.displayId;
+                    packet.RaceID = outfit.race;
+                    packet.Gender = outfit.gender;
+                    packet.ClassID = 1;
+                    packet.SkinColor = outfit.skin;
+                    packet.FaceVariation = outfit.face;
+                    packet.HairVariation = outfit.hair;
+                    packet.HairColor = outfit.haircolor;
+                    packet.BeardVariation = outfit.facialhair;
+                    packet.GuildGUID = ObjectGuid::Empty;
+
+                    packet.ItemDisplayID.reserve(11);
+
+                    // item displays
+                    for (auto const& display : it->second.outfit)
+                        packet.ItemDisplayID.push_back(display);
+
+                    SendPacket(packet.Write());
+                    return;
+                }
+            }
+        }
+    }
+
 
     if (!unit->HasAuraType(SPELL_AURA_CLONE_CASTER))
         return;

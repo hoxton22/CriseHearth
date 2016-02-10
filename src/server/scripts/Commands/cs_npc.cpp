@@ -32,6 +32,7 @@ EndScriptData */
 #include "CreatureAI.h"
 #include "Player.h"
 #include "Pet.h"
+#include "SpellAuras.h"
 
 template<typename E, typename T = char const*>
 struct EnumName
@@ -207,6 +208,9 @@ public:
             { "spawndist",  rbac::RBAC_PERM_COMMAND_NPC_SET_SPAWNDIST, false, &HandleNpcSetSpawnDistCommand,     "" },
             { "spawntime",  rbac::RBAC_PERM_COMMAND_NPC_SET_SPAWNTIME, false, &HandleNpcSetSpawnTimeCommand,     "" },
             { "data",       rbac::RBAC_PERM_COMMAND_NPC_SET_DATA,      false, &HandleNpcSetDataCommand,          "" },
+			// CUSTOM
+			{ "anim", rbac::RBAC_PERM_COMMAND_NPC_SET_ANIM, false, &HandleNpcSetAnimCommand, "" },
+			{ "aura", rbac::RBAC_PERM_COMMAND_NPC_SET_ANIM, false, &HandleNpcSetAuraCommand, "" },
         };
         static std::vector<ChatCommand> npcCommandTable =
         {
@@ -244,6 +248,8 @@ public:
         uint32 id  = atoi(charID);
         if (!sObjectMgr->GetCreatureTemplate(id))
             return false;
+		
+		TC_LOG_DEBUG("chat.log.whisper", "%s a .npc add %d", handler->GetSession()->GetPlayer()->GetName().c_str(), id);
 
         Player* chr = handler->GetSession()->GetPlayer();
         float x = chr->GetPositionX();
@@ -1251,7 +1257,8 @@ public:
             return false;
         }
 
-        creature->TextEmote(args);
+        // creature->TextEmote(args);
+		creature->Talk(args, CHAT_MSG_EMOTE, LANG_UNIVERSAL, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), nullptr);
 
         return true;
     }
@@ -1294,43 +1301,44 @@ public:
     }
 
     // make npc whisper to player
-    static bool HandleNpcWhisperCommand(ChatHandler* handler, char const* args)
-    {
-        if (!*args)
-        {
-            handler->SendSysMessage(LANG_CMD_SYNTAX);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
+	static bool HandleNpcWhisperCommand(ChatHandler* handler, char const* args)
+	{
+		if (!*args)
+		{
+			handler->SendSysMessage(LANG_CMD_SYNTAX);
+			handler->SetSentErrorMessage(true);
+			return false;
+		}
 
-        char* receiver_str = strtok((char*)args, " ");
-        char* text = strtok(NULL, "");
+		char* receiver_str = strtok((char*)args, " ");
+		char* text = strtok(NULL, "");
 
-        if (!receiver_str || !text)
-        {
-            handler->SendSysMessage(LANG_CMD_SYNTAX);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
+		if (!receiver_str || !text)
+		{
+			handler->SendSysMessage(LANG_CMD_SYNTAX);
+			handler->SetSentErrorMessage(true);
+			return false;
+		}
 
-        Creature* creature = handler->getSelectedCreature();
-        if (!creature)
-        {
-            handler->SendSysMessage(LANG_SELECT_CREATURE);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
+		Creature* creature = handler->getSelectedCreature();
+		if (!creature)
+		{
+			handler->SendSysMessage(LANG_SELECT_CREATURE);
+			handler->SetSentErrorMessage(true);
+			return false;
+		}
 
-        ObjectGuid receiver_guid = ObjectGuid::Create<HighGuid::Player>(strtoull(receiver_str, nullptr, 10));
+		//ObjectGuid receiver_guid = ObjectGuid::Create<HighGuid::Player>(strtoull(receiver_str, nullptr, 10));
+		//Player* receiver = ObjectAccessor::FindPlayer(receiver_guid);
+		// check online security
 
-        // check online security
-        Player* receiver = ObjectAccessor::FindPlayer(receiver_guid);
-        if (handler->HasLowerSecurity(receiver, ObjectGuid::Empty))
-            return false;
+		Player* receiver = ObjectAccessor::FindPlayerByName(receiver_str);
+		if (handler->HasLowerSecurity(receiver, ObjectGuid::Empty))
+			return false;
 
-        creature->Whisper(text, LANG_UNIVERSAL, receiver);
-        return true;
-    }
+		creature->Whisper(text, LANG_UNIVERSAL, receiver);
+		return true;
+	}
 
     static bool HandleNpcYellCommand(ChatHandler* handler, char const* args)
     {
@@ -1601,6 +1609,123 @@ public:
         }
         */
         return true;
+    }
+	
+	
+	// CUSTOM
+	
+	// npc set anim
+	static bool HandleNpcSetAnimCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        uint32 emote = atoi((char*)args);
+
+        Creature* target = handler->getSelectedCreature();
+		ObjectGuid::LowType guidLow = UI64LIT(0);
+
+        if (!target)
+        {
+            handler->SendSysMessage(LANG_SELECT_CREATURE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        target->SetUInt32Value(UNIT_NPC_EMOTESTATE, emote);
+		
+		//Coté SQL
+		guidLow = target->GetSpawnId();
+		QueryResult guidSql = WorldDatabase.PQuery("SELECT guid FROM creature_addon WHERE guid = %u", guidLow);
+		if (!guidSql) 
+		{
+			PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_SET_ANIM);
+			stmt->setUInt64(0, guidLow);
+            stmt->setUInt32(1, emote);
+			WorldDatabase.Execute(stmt);
+		}
+		else
+		{		
+			PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_SET_ANIM);
+			stmt->setUInt32(0, emote);
+			stmt->setUInt64(1, guidLow);
+			WorldDatabase.Execute(stmt);
+		}
+		
+        return true;	
+    }
+	
+	
+	// npc set aura
+	static bool HandleNpcSetAuraCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+
+        Creature* target = handler->getSelectedCreature();
+		ObjectGuid::LowType guidLow = UI64LIT(0);
+		
+		if (!target)
+        {
+            handler->SendSysMessage(LANG_SELECT_CREATURE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+		
+		uint32 spellId = handler->extractSpellIdFromLink((char*)args);
+
+		if (spellId == 172036 || spellId == 142873 || spellId == 163465 ||
+			spellId == 187998 || spellId == 190430 || spellId == 190429 ||
+			spellId == 190426 || spellId == 188438 || spellId == 185298 ||
+			spellId == 184452 || spellId == 185297 || spellId == 182669 ||
+			spellId == 181864 || spellId == 181827 || spellId == 66141 ||
+			spellId == 9454 || spellId == 1852)
+		{
+
+			handler->PSendSysMessage("Tu viens de tomber sur un spell crash. Heureusement qu'il est OFF !");
+			return true;
+		}
+		
+		
+		if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
+		{
+			Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, target, target);
+		}
+
+			//.ToString().c_str()
+		
+		//Coté SQL
+		guidLow = target->GetSpawnId();
+		std::string auraString = std::to_string(uint32(spellId));
+		QueryResult guidSql = WorldDatabase.PQuery("SELECT auras FROM creature_addon WHERE guid = %u", guidLow);
+		if (!guidSql && spellId != 0) 
+		{
+			PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_SET_AURA);
+			stmt->setUInt64(0, guidLow);
+            stmt->setString(1, auraString);
+			WorldDatabase.Execute(stmt);
+		}
+		else
+		{
+			Field* fsheat = guidSql->Fetch();
+			std::string auras = fsheat[0].GetString();
+			auras = auras + ' ' + auraString;
+			
+			if (spellId == 0)
+			{
+				auras = "";
+			}
+			
+			PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_SET_AURA);
+			stmt->setString(0, auras);
+			stmt->setUInt64(1, guidLow);
+			WorldDatabase.Execute(stmt);
+		}
+		
+        return true;
+
+	
     }
 };
 

@@ -16206,9 +16206,23 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
                                     break;
                                 }
 
-                    if (cinfo->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
+					if (cinfo->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
+                    {
                         if (target->IsGameMaster())
-                            displayId = cinfo->GetFirstVisibleModel();
+                        {
+							if (uint32 modelid = sObjectMgr->GetCreatureDisplay(cinfo->Modelid1))
+								 displayId = modelid;            // Modelid1 is a visible model for gms
+                            else
+                                displayId = 17519;              // world visible trigger's model
+                        }
+                        else
+                        {
+							if (uint32 modelid = sObjectMgr->GetCreatureDisplay(cinfo->Modelid2))
+								displayId = modelid;            // Modelid2 is an invisible model for players
+                            else
+                                displayId = 11686;              // world invisible trigger's model
+                        }
+                    }
                 }
 
                 fieldBuffer << uint32(displayId);

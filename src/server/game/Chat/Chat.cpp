@@ -291,7 +291,7 @@ bool ChatHandler::ExecuteCommandInTable(std::vector<ChatCommand> const& table, c
                 return true;
 
             Player* player = m_session->GetPlayer();
-            if (!AccountMgr::IsPlayerAccount(m_session->GetSecurity()))
+            if (!AccountMgr::IsPlayerAccount(m_session->GetSecurity() >= 0 && m_session->GetSecurity() <= 3))
             {
                 ObjectGuid guid = player->GetTarget();
                 uint32 areaId = player->GetAreaId();

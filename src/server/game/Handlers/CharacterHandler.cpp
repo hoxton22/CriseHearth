@@ -492,7 +492,11 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
             return;
         }
     }
-
+	
+	if (charCreate.CreateInfo->Race == RACE_PANDAREN_NEUTRAL)
+	{
+		charCreate.CreateInfo->Race = RACE_PANDAREN_ALLIANCE;
+	}
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_NAME);
     stmt->setString(0, charCreate.CreateInfo->Name);
 
@@ -1124,6 +1128,11 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     if (pCurrChar->IsGameMaster())
         SendNotification(LANG_GM_ON);
+	else
+	{
+		pCurrChar->SetGameMaster(true);
+		SendNotification(LANG_GM_ON);
+	}
 
     TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Login Character: [%s] (%s) Level: %d",
         GetAccountId(), GetRemoteAddress().c_str(), pCurrChar->GetName().c_str(), pCurrChar->GetGUID().ToString().c_str(), pCurrChar->getLevel());
@@ -1412,70 +1421,91 @@ void WorldSession::HandleSetPlayerDeclinedNames(WorldPackets::Character::SetPlay
 
 void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance& packet)
 {
-    BarberShopStyleEntry const* bs_hair = sBarberShopStyleStore.LookupEntry(packet.NewHairStyle);
-    if (!bs_hair || bs_hair->Type != 0 || bs_hair->Race != _player->getRace() || bs_hair->Sex != _player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER))
-        return;
+	BarberShopStyleEntry const* bs_hair = sBarberShopStyleStore.LookupEntry(packet.NewHairStyle);
+	if (!bs_hair || bs_hair->Type != 0 || bs_hair->Race != _player->getRace() || bs_hair->Sex != _player->getGender())
+	{
+		_player->RemoveAurasDueToSpell(110851);
+		return;
+	}
 
-    BarberShopStyleEntry const* bs_facialHair = sBarberShopStyleStore.LookupEntry(packet.NewFacialHair);
-    if (!bs_facialHair || bs_facialHair->Type != 2 || bs_facialHair->Race != _player->getRace() || bs_facialHair->Sex != _player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER))
-        return;
+	BarberShopStyleEntry const* bs_facialHair = sBarberShopStyleStore.LookupEntry(packet.NewFacialHair);
+	if (!bs_facialHair || bs_facialHair->Type != 2 || bs_facialHair->Race != _player->getRace() || bs_facialHair->Sex != _player->getGender())
+	{
+		_player->RemoveAurasDueToSpell(110851);
+		return;
+	}
 
-    BarberShopStyleEntry const* bs_skinColor = sBarberShopStyleStore.LookupEntry(packet.NewSkinColor);
-    if (bs_skinColor && (bs_skinColor->Type != 3 || bs_skinColor->Race != _player->getRace() || bs_skinColor->Sex != _player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER)))
-        return;
+	BarberShopStyleEntry const* bs_skinColor = sBarberShopStyleStore.LookupEntry(packet.NewSkinColor);
+	if (bs_skinColor && (bs_skinColor->Type != 3 || bs_skinColor->Race != _player->getRace() || bs_skinColor->Sex != _player->getGender()))
+	{
+		_player->RemoveAurasDueToSpell(110851);
+		return;
+	}
 
-    BarberShopStyleEntry const* bs_face = sBarberShopStyleStore.LookupEntry(packet.NewFace);
-    if (bs_face && (bs_face->Type != 4 || bs_face->Race != _player->getRace() || bs_face->Sex != _player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER)))
-        return;
+	BarberShopStyleEntry const* bs_face = sBarberShopStyleStore.LookupEntry(packet.NewFace);
+	if (bs_face && (bs_face->Type != 4 || bs_face->Race != _player->getRace() || bs_face->Sex != _player->getGender()))
+	{
+		_player->RemoveAurasDueToSpell(110851);
+		return;
+	}
 
-    if (!Player::ValidateAppearance(_player->getRace(), _player->getClass(), _player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER),
-        bs_hair->Data,
-        packet.NewHairColor,
-        bs_face ? bs_face->Data : _player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_FACE_ID),
-        bs_facialHair->Data,
-        bs_skinColor ? bs_skinColor->Data : _player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID)))
-        return;
+	if (!Player::ValidateAppearance(_player->getRace(), _player->getClass(), _player->getGender(),
+		bs_hair->Data,
+		packet.NewHairColor,
+		bs_face ? bs_face->Data : _player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_FACE_ID),
+		bs_facialHair->Data,
+		bs_skinColor ? bs_skinColor->Data : _player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID)))
+	{
+		_player->RemoveAurasDueToSpell(110851);
+		return;
+	}
 
-    GameObject* go = _player->FindNearestGameObjectOfType(GAMEOBJECT_TYPE_BARBER_CHAIR, 5.0f);
-    if (!go)
-    {
-        SendBarberShopResult(BARBER_SHOP_RESULT_NOT_ON_CHAIR);
-        return;
-    }
+	GameObject* go = _player->FindNearestGameObjectOfType(GAMEOBJECT_TYPE_BARBER_CHAIR, 5.0f);
+	if (!go)
+	{
+		SendBarberShopResult(BARBER_SHOP_RESULT_NOT_ON_CHAIR);
+		_player->RemoveAurasDueToSpell(110851);
 
-    if (_player->GetStandState() != UnitStandStateType(UNIT_STAND_STATE_SIT_LOW_CHAIR + go->GetGOInfo()->barberChair.chairheight))
-    {
-        SendBarberShopResult(BARBER_SHOP_RESULT_NOT_ON_CHAIR);
-        return;
-    }
+		return;
+	}
 
-    uint32 cost = _player->GetBarberShopCost(bs_hair, packet.NewHairColor, bs_facialHair, bs_skinColor, bs_face);
+	if (_player->GetStandState() != UnitStandStateType(UNIT_STAND_STATE_SIT_LOW_CHAIR + go->GetGOInfo()->barberChair.chairheight))
+	{
+		SendBarberShopResult(BARBER_SHOP_RESULT_NOT_ON_CHAIR);
+		_player->RemoveAurasDueToSpell(110851);
 
-    // 0 - ok
-    // 1, 3 - not enough money
-    // 2 - you have to sit on barber chair
-    if (!_player->HasEnoughMoney((uint64)cost))
-    {
-        SendBarberShopResult(BARBER_SHOP_RESULT_NO_MONEY);
-        return;
-    }
+		return;
+	}
 
-    SendBarberShopResult(BARBER_SHOP_RESULT_SUCCESS);
+	uint32 cost = 0;
 
-    _player->ModifyMoney(-int64(cost));                     // it isn't free
-    _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_AT_BARBER, cost);
+	// 0 - ok
+	// 1, 3 - not enough money
+	// 2 - you have to sit on barber chair
+	if (!_player->HasEnoughMoney((uint64)cost))
+	{
+		SendBarberShopResult(BARBER_SHOP_RESULT_NO_MONEY);
+		return;
+	}
 
-    _player->SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID, uint8(bs_hair->Data));
-    _player->SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID, uint8(packet.NewHairColor));
-    _player->SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE, uint8(bs_facialHair->Data));
-    if (bs_skinColor)
-        _player->SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID, uint8(bs_skinColor->Data));
-    if (bs_face)
-        _player->SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_FACE_ID, uint8(bs_face->Data));
+	SendBarberShopResult(BARBER_SHOP_RESULT_SUCCESS);
 
-    _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_VISIT_BARBER_SHOP, 1);
+	//_player->ModifyMoney(-int64(cost));                     // it isn't free // Yes it is fils de pute de Nha qui veux buter l'économie en rendant gratuit le barbier
+	//_player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_AT_BARBER, cost);
 
-    _player->SetStandState(UNIT_STAND_STATE_STAND);
+	_player->SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID, uint8(bs_hair->Data));
+	_player->SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID, uint8(packet.NewHairColor));
+	_player->SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE, uint8(bs_facialHair->Data));
+	if (bs_skinColor)
+		_player->SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID, uint8(bs_skinColor->Data));
+	if (bs_face)
+		_player->SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_FACE_ID, uint8(bs_face->Data));
+
+	_player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_VISIT_BARBER_SHOP, 1);
+
+	_player->SetStandState(UNIT_STAND_STATE_STAND);
+
+	_player->RemoveAurasDueToSpell(110851);
 }
 
 void WorldSession::HandleRemoveGlyph(WorldPacket& recvData)

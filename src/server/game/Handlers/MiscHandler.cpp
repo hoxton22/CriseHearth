@@ -1061,3 +1061,34 @@ void WorldSession::HandleMountSpecialAnimOpcode(WorldPackets::Misc::MountSpecial
     specialMountAnim.UnitGUID = _player->GetGUID();
     GetPlayer()->SendMessageToSet(specialMountAnim.Write(), false);
 }
+
+/*void WorldSession::HandleSelectFactionOpcode(WorldPacket& recvPacket)
+{
+	uint32 choice = recvPacket.read<uint32>();
+	Player* _player = GetPlayer();
+
+	if (_player->getRace() == RACE_PANDAREN_ALLIANCE || _player->getRace() == RACE_PANDAREN_HORDE || _player->getRace() == RACE_PANDAREN_NEUTRAL)
+	{
+
+		if (choice == JOIN_THE_HORDE)
+		{
+			_player->SetByteValue(UNIT_FIELD_BYTES_0, 0, RACE_PANDAREN_HORDE);
+			_player->setFactionForRace(RACE_PANDAREN_HORDE);
+			_player->SaveToDB();
+		}
+		else if (choice == JOIN_THE_ALLIANCE)
+		{
+			_player->SetByteValue(UNIT_FIELD_BYTES_0, 0, RACE_PANDAREN_ALLIANCE);
+			_player->setFactionForRace(RACE_PANDAREN_ALLIANCE);
+			_player->SaveToDB();
+		}
+
+		if (_player->GetQuestStatus(31450) == QUEST_STATUS_INCOMPLETE)
+			_player->KilledMonsterCredit(64594);
+	}
+
+	else
+		return;
+
+}
+*/

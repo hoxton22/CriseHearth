@@ -10920,7 +10920,7 @@ InventoryResult Player::CanUseItem(Item* pItem, bool not_loading) const
 
             if (pItem->GetSkill() != 0)
             {
-                bool allowEquip = false;
+                bool allowEquip = true;
                 uint32 itemSkill = pItem->GetSkill();
                 // Armor that is binded to account can "morph" from plate to mail, etc. if skill is not learned yet.
                 if (pProto->GetQuality() == ITEM_QUALITY_HEIRLOOM && pProto->GetClass() == ITEM_CLASS_ARMOR && !HasSkill(itemSkill))
@@ -22259,7 +22259,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     WorldPackets::Misc::WorldServerInfo worldServerInfo;
     // worldServerInfo.IneligibleForLootMask; /// @todo
     worldServerInfo.WeeklyReset = sWorld->GetNextWeeklyQuestsResetTime() - WEEK;
-    worldServerInfo.InstanceGroupSize = GetMap()->GetMapDifficulty()->MaxPlayers;
+    worldServerInfo.InstanceGroupSize = 0; // GetMap()->GetMapDifficulty()->MaxPlayers
     worldServerInfo.IsTournamentRealm = 0; /// @todo
     // worldServerInfo.RestrictedAccountMaxLevel; /// @todo
     // worldServerInfo.RestrictedAccountMaxMoney; /// @todo
@@ -26250,15 +26250,15 @@ bool Player::ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 ha
         {
             // Check DeathKnight exclusive
             if (((entry->Flags & SECTION_FLAG_DEATH_KNIGHT) || (entry2->Flags & SECTION_FLAG_DEATH_KNIGHT)) && class_ != CLASS_DEATH_KNIGHT)
-                return false;
+                return true;
             if (create && !((entry->Flags & SECTION_FLAG_PLAYER) && (entry2->Flags & SECTION_FLAG_PLAYER)))
-                return false;
+                return true;
         }
         else
-            return false;
+            return true;
     }
     else
-        return false;
+        return true;
 
     // These combinations don't have an entry of Type SECTION_TYPE_FACIAL_HAIR, exclude them from that check
     bool excludeCheck = (race == RACE_TAUREN) || (race == RACE_DRAENEI) || (gender == GENDER_FEMALE && race != RACE_NIGHTELF && race != RACE_UNDEAD_PLAYER);
@@ -26267,21 +26267,21 @@ bool Player::ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 ha
     if (CharSectionsEntry const* entry = GetCharSectionEntry(race, SECTION_TYPE_HAIR, gender, hairID, hairColor))
     {
         if ((entry->Flags & SECTION_FLAG_DEATH_KNIGHT) && class_ != CLASS_DEATH_KNIGHT)
-            return false;
+            return true;
         if (create && !(entry->Flags & SECTION_FLAG_PLAYER))
-            return false;
+            return true;
 
         if (!excludeCheck)
         {
             if (CharSectionsEntry const* entry2 = GetCharSectionEntry(race, SECTION_TYPE_FACIAL_HAIR, gender, facialHair, hairColor))
             {
                 if ((entry2->Flags & SECTION_FLAG_DEATH_KNIGHT) && class_ != CLASS_DEATH_KNIGHT)
-                    return false;
+                    return true;
                 if (create && !(entry2->Flags & SECTION_FLAG_PLAYER))
-                    return false;
+                    return true;
             }
             else
-                return false;
+                return true;
         }
         else
         {
@@ -26290,7 +26290,7 @@ bool Player::ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 ha
         }
     }
     else
-        return false;
+        return true;
 
     return true;
 }
@@ -26361,3 +26361,10 @@ void Player::RemoveRestFlag(RestFlag restFlag)
         RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
     }
 }
+
+/*void Player::ShowNeutralPlayerFactionSelectUI()
+{
+	WorldPacket data(SMSG_SHOW_NEUTRAL_PLAYER_FACTION_SELECT_UI);
+	GetSession()->SendPacket(&data);
+}
+*/

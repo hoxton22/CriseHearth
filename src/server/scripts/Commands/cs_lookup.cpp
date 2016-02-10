@@ -1146,34 +1146,48 @@ public:
     }
 
     static bool HandleLookupPlayerIpCommand(ChatHandler* handler, char const* args)
-    {
-        std::string ip;
-        int32 limit;
-        char* limitStr;
+	{
+		//std::string ip;
+		std::string nameTarget;
+		int32 limit;
+		char* limitStr;
 
-        Player* target = handler->getSelectedPlayer();
-        if (!*args)
-        {
-            // NULL only if used from console
-            if (!target || target == handler->GetSession()->GetPlayer())
-                return false;
+		Player* target = handler->getSelectedPlayer();
+		if (!*args)
+		{
+			// NULL only if used from console
+			if (!target || target == handler->GetSession()->GetPlayer())
+				return false;
 
-            ip = target->GetSession()->GetRemoteAddress();
-            limit = -1;
-        }
-        else
-        {
-            ip = strtok((char*)args, " ");
-            limitStr = strtok(NULL, " ");
-            limit = limitStr ? atoi(limitStr) : -1;
-        }
+			//ip = target->GetSession()->GetRemoteAddress();
+			nameTarget = target->GetSession()->GetPlayer()->GetName();
+			limit = -1;
+		}
+		else
+		{
+			//ip = strtok((char*)args, " ");
+			nameTarget = strtok((char*)args, " ");
+			limitStr = strtok(NULL, " ");
+			limit = limitStr ? atoi(limitStr) : -1;
+		}
+		std::string ip;
+		Player* player = ObjectAccessor::FindPlayerByName(nameTarget);
+		if (!player)
+		{
+			ip = nameTarget;
+		}
+		else
+		{
+			ip = player->GetSession()->GetRemoteAddress();
+		}
 
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BY_IP);
-        stmt->setString(0, ip);
-        PreparedQueryResult result = LoginDatabase.Query(stmt);
+		PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BY_IP);
+		//PrepareStatement(LOGIN_SEL_ACCOUNT_BY_IP, "SELECT id, username FROM account WHERE last_ip = ?", CONNECTION_SYNCH);
+		stmt->setString(0, ip);
+		PreparedQueryResult result = LoginDatabase.Query(stmt);
 
-        return LookupPlayerSearchCommand(result, limit, handler);
-    }
+		return LookupPlayerSearchCommand(result, limit, handler);
+	}
 
     static bool HandleLookupPlayerAccountCommand(ChatHandler* handler, char const* args)
     {

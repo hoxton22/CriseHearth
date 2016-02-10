@@ -56,6 +56,7 @@ public:
             { "info",     rbac::RBAC_PERM_COMMAND_GOBJECT_INFO,     false, &HandleGameObjectInfoCommand,      ""       },
             { "move",     rbac::RBAC_PERM_COMMAND_GOBJECT_MOVE,     false, &HandleGameObjectMoveCommand,      ""       },
             { "near",     rbac::RBAC_PERM_COMMAND_GOBJECT_NEAR,     false, &HandleGameObjectNearCommand,      ""       },
+			{ "scale",    rbac::RBAC_PERM_COMMAND_GOBJECT_MOVE,     false, &HandleGameObjectScaleCommand,     ""       },
             { "target",   rbac::RBAC_PERM_COMMAND_GOBJECT_TARGET,   false, &HandleGameObjectTargetCommand,    ""       },
             { "turn",     rbac::RBAC_PERM_COMMAND_GOBJECT_TURN,     false, &HandleGameObjectTurnCommand,      ""       },
             { "add",      rbac::RBAC_PERM_COMMAND_GOBJECT_ADD,      false, NULL,            "", gobjectAddCommandTable },
@@ -67,6 +68,88 @@ public:
         };
         return commandTable;
     }
+	
+	static bool HandleGameObjectScaleCommand(ChatHandler* handler, char const* args)
+	{
+		if (!*args)
+			return false;
+
+		char* id = handler->extractKeyFromLink((char*)args, "Hgameobject");
+		if (!id)
+			return false;
+
+		uint32 guidLow = atoi(id);
+		if (!guidLow)
+			return false;
+
+		GameObject* object = NULL;
+
+		// via db
+		if (GameObjectData const* goData = sObjectMgr->GetGOData(guidLow))
+			object = handler->GetObjectGlobalyWithGuidOrNearWithDbGuid(guidLow, goData->id);
+
+		if (!object)
+		{
+			handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, guidLow);
+			handler->SetSentErrorMessage(true);
+			return false;
+		}
+
+		char* scale_temp = strtok(NULL, " ");
+		float scale = scale_temp ? atof(scale_temp) : 1.0f;
+		if (scale < 0.0f || scale > 100.0f)
+		{
+			handler->SendSysMessage(LANG_BAD_VALUE);
+			handler->SetSentErrorMessage(true);
+			return false;
+		}
+
+		// exécution du scale
+		object->SetObjectScale(scale);
+		object->DestroyForNearbyPlayers();
+		object->UpdateObjectVisibility();
+		object->SaveToDB();
+
+		/* Ajout GM + phase :
+
+		if (handler->GetSession()->GetPlayer()->IsGameMaster())
+		{
+		handler->GetSession()->GetPlayer()->SetGameMaster(false);
+		object->SetPhaseMask(2, true);
+		Sleep(2200);
+		object->SetPhaseMask(1, true);
+		handler->GetSession()->GetPlayer()->SetGameMaster(true);
+		}
+		else
+		{
+		object->SetPhaseMask(2, true);
+		Sleep(2200);
+		object->SetPhaseMask(1, true);
+		handler->GetSession()->GetPlayer()->SetGameMaster(true);
+		}
+		*/
+
+
+		/*
+		uint32 spellId = 177398;
+		Aura::TryRefreshStackOrCreate(sSpellMgr->GetSpellInfo(spellId), MAX_EFFECT_MASK, _player, _player);
+
+		Sleep(2200);
+		while (_player->HasAura(spellId, _player->GetGUID()))
+		{
+		_player->RemoveAurasDueToSpell(spellId);
+		}
+		*/
+
+		Player* _caller = handler->GetSession()->GetPlayer();
+		Map::PlayerList const& PlayerList = _caller->GetMap()->GetPlayers();
+		for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
+			if (Player* _player = itr->GetSource())
+				_player->TeleportTo(_player->GetMapId(), _player->GetPositionX(), _player->GetPositionY(), _player->GetPositionZ(), _player->GetOrientation());
+
+		return true;
+
+	}
 
     static bool HandleGameObjectActivateCommand(ChatHandler* handler, char const* args)
     {
@@ -117,6 +200,8 @@ public:
         uint32 objectId = atoul(id);
         if (!objectId)
             return false;
+		
+		TC_LOG_DEBUG("chat.log.whisper", "%s a .gob add %d", handler->GetSession()->GetPlayer()->GetName().c_str(), objectId);
 
         char* spawntimeSecs = strtok(NULL, " ");
 
@@ -470,12 +555,11 @@ public:
         char* toY = strtok(NULL, " ");
         char* toZ = strtok(NULL, " ");
 
-        float x, y, z;
+		float x, y, z;
+		Player* player = handler->GetSession()->GetPlayer();
         if (!toX)
-        {
-            Player* player = handler->GetSession()->GetPlayer();
             player->GetPosition(x, y, z);
-        }
+		
         else
         {
             if (!toY || !toZ)

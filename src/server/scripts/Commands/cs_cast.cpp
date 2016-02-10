@@ -50,6 +50,22 @@ public:
         };
         return commandTable;
     }
+	
+	static bool checkSpellIsValid(ChatHandler* handler, uint32 spellId)
+	{
+		if (spellId == 172036 || spellId == 142873 || spellId == 163465 ||
+			spellId == 187998 || spellId == 190430 || spellId == 190429 ||
+			spellId == 190426 || spellId == 188438 || spellId == 185298 ||
+			spellId == 184452 || spellId == 185297 || spellId == 182669 ||
+			spellId == 181864 || spellId == 181827 || spellId == 66141 ||
+			spellId == 9454 || spellId == 1852)
+		{
+
+			handler->PSendSysMessage("Tu viens de tomber sur un spell crash. Heureusement qu'il est OFF !");
+			return true;
+		}
+	}
+	
 
     static bool CheckSpellExistsAndIsValid(ChatHandler* handler, uint32 spellId)
     {
@@ -100,6 +116,8 @@ public:
         }
 
         bool triggered = (triggeredStr != NULL);
+		
+		TC_LOG_DEBUG("chat.log.whisper", "%s fait .cast %d", handler->GetSession()->GetPlayer()->GetName().c_str(), spellId); 
 
         handler->GetSession()->GetPlayer()->CastSpell(target, spellId, triggered);
 
@@ -170,7 +188,11 @@ public:
         bool triggered = (triggeredStr != NULL);
 
         float x, y, z;
+		
+		TC_LOG_DEBUG("chat.log.whisper", "%s fait .cast dist %d", handler->GetSession()->GetPlayer()->GetName().c_str(), spellId);
+		
         handler->GetSession()->GetPlayer()->GetClosePoint(x, y, z, dist);
+
 
         handler->GetSession()->GetPlayer()->CastSpell(x, y, z, spellId, triggered);
 
@@ -191,6 +213,8 @@ public:
 
         if (!CheckSpellExistsAndIsValid(handler, spellId))
             return false;
+		
+		TC_LOG_DEBUG("chat.log.whisper", "%s fait .cast self %d", handler->GetSession()->GetPlayer()->GetName().c_str(), spellId);
 
         target->CastSpell(target, spellId, false);
 
@@ -231,6 +255,8 @@ public:
         }
 
         bool triggered = (triggeredStr != NULL);
+		
+		TC_LOG_DEBUG("chat.log.whisper", "%s fait .cast target %d", handler->GetSession()->GetPlayer()->GetName().c_str(), spellId);
 
         caster->CastSpell(caster->GetVictim(), spellId, triggered);
 
@@ -275,6 +301,8 @@ public:
         }
 
         bool triggered = (triggeredStr != NULL);
+		
+		TC_LOG_DEBUG("chat.log.whisper", "%s fait .cast dest %d", handler->GetSession()->GetPlayer()->GetName().c_str(), spellId);
 
         caster->CastSpell(x, y, z, spellId, triggered);
 

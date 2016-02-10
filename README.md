@@ -79,4 +79,4 @@ Read file [THANKS](THANKS)
 
 [Forums](http://www.trinitycore.org/f/)
 
-[Urgency] 444
+[Youtube Help Man] https://www.youtube.com/watch?v=B5Ss4xNYWDY  

@@ -16,4 +16,8 @@ CMakeLists.txt.user
 *.BACKUP.*
 *.BASE.*
 *.LOCAL.*
+CMakeCache.txt
+CMakeLists.txt.user
+CMakeLists.txt
+CMakeFiles/cmake.check_cache
 nbproject/*

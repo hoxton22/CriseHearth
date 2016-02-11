@@ -3745,7 +3745,7 @@ public:
 
 		// SQL
 
-		PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_MJ);
+		PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_DISABLES_MJ); // Eh... WORLD_INS_MJ.... Unclear.
 		stmt->setUInt32 (0,  entry);
 		stmt->setString(1, comment);
 		WorldDatabase.Execute(stmt);

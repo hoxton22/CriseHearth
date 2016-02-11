@@ -99,7 +99,7 @@ void WorldDatabaseConnection::DoPrepareStatements()
 	PrepareStatement(WORLD_UPD_SET_AURA, "UPDATE creature_addon SET auras = ? WHERE guid = ?", CONNECTION_ASYNC);
 	PrepareStatement(WORLD_UPD_SET_MOUNT, "UPDATE creature_addon SET mount = ? WHERE guid = ?", CONNECTION_ASYNC);
 	PrepareStatement(WORLD_INS_SET_MOUNT, "INSERT INTO creature_addon(guid, mount) VALUES (?, ?)", CONNECTION_ASYNC);
-	PrepareStatement(WORLD_INS_MJ, "INSERT INTO disables(sourceType, entry, comment) VALUES (0, ?, ?)", CONNECTION_ASYNC);
+	PrepareStatement(WORLD_INS_DISABLES_MJ, "INSERT INTO disables(sourceType, entry, comment) VALUES (0, ?, ?)", CONNECTION_ASYNC);
 	PrepareStatement(WORLD_SEL_GAMEOBJECT_TELE, "SELECT pos_x,pos_y,pos_z,mapid,orientation FROM gameobject_tele WHERE entry = ?", CONNECTION_SYNCH);
 
 

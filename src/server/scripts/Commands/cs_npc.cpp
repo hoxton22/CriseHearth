@@ -1770,6 +1770,7 @@ public:
 
 		return true;
 	}
+
 };
 
 void AddSC_npc_commandscript()

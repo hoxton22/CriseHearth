@@ -133,6 +133,8 @@ public:
 			//{ "upstep1", rbac::RBAC_PERM_COMMAND_KICK, false, &HandleUpdateItem1, "" },
 			{ "upstep2", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleUpdateItem2, "" },
 			{ "upstep3", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleUpdateItem3, "" },
+			{ "disables", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleDisablesCommand, "" },
+			
         };
         return commandTable;
     }
@@ -3724,6 +3726,35 @@ public:
 		target->SetSpeed(MOVE_FLIGHT, 2, true);
 
 		return true;
+	}
+	
+	static bool HandleDisablesCommand(ChatHandler* handler, char const* args)
+	{
+		if (!*args)
+			return false;
+		
+		// Crée les espaces
+		char const* px = strtok((char*)args, " ");
+		char* py = strtok(NULL, "");
+
+		if (!px || !py)
+			return false;
+
+		uint32 entry = uint32(atoi(px));
+		std::string comment(py);
+
+		// SQL
+
+		PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_MJ);
+		stmt->setUInt32 (0,  entry);
+		stmt->setString(1, comment);
+		WorldDatabase.Execute(stmt);
+		
+		TC_LOG_INFO("misc", "Reloading Disables...");
+		DisableMgr::LoadDisables();
+
+		handler->SendSysMessage("Tables Disables redémarré et spell bloqué.");
+
 	}
 
 };

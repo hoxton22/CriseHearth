@@ -209,9 +209,9 @@ public:
             { "spawntime",  rbac::RBAC_PERM_COMMAND_NPC_SET_SPAWNTIME, false, &HandleNpcSetSpawnTimeCommand,     "" },
             { "data",       rbac::RBAC_PERM_COMMAND_NPC_SET_DATA,      false, &HandleNpcSetDataCommand,          "" },
 			// CUSTOM
-			{ "anim", rbac::RBAC_PERM_COMMAND_NPC_SET_ANIM, false, &HandleNpcSetAnimCommand, "" },
-			{ "aura", rbac::RBAC_PERM_COMMAND_NPC_SET_ANIM, false, &HandleNpcSetAuraCommand, "" },
-			{ "mount", rbac::RBAC_PERM_COMMAND_NPC_ADD,    false, &HandleNpcSetMountCommand, "" }, // Please change the rbac later 
+			{ "anim",  rbac::RBAC_PERM_COMMAND_NPC_ADD, false, &HandleNpcSetAnimCommand, "" },
+			{ "aura",  rbac::RBAC_PERM_COMMAND_NPC_ADD, false, &HandleNpcSetAuraCommand, "" },
+			{ "mount", rbac::RBAC_PERM_COMMAND_NPC_ADD, false, &HandleNpcSetMountCommand, "" }, 
         };
         static std::vector<ChatCommand> npcCommandTable =
         {

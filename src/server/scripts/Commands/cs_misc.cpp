@@ -133,7 +133,7 @@ public:
 			//{ "upstep1", rbac::RBAC_PERM_COMMAND_KICK, false, &HandleUpdateItem1, "" },
 			{ "upstep2", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleUpdateItem2, "" },
 			{ "upstep3", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleUpdateItem3, "" },
-			{ "disables", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleDisablesCommand, "" },
+			{ "disables", rbac::RBAC_PERM_COMMAND_PINFO, false, &HandleDisablesCommand, "" },
 			
         };
         return commandTable;

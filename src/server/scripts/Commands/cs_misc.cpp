@@ -3783,9 +3783,12 @@ public:
 		stmt->setUInt32 (1, phaseNewMapID); // Format : New Map ID
 		stmt->setString(2, handler->GetSession()->GetPlayer()->GetName().c_str());
 		WorldDatabase.Execute(stmt);
+		
+		TC_LOG_INFO("misc", "Reloading Terrain Phase Info...");
+		sObjectMgr->LoadTerrainPhaseInfo();
+	
 
-
-		handler->SendSysMessage("Phase crée ! Procéder à la commande .setphase maintenant!");
+		handler->SendSysMessage("Phase crée, prochaine étape : .setphase");
 
 	}
 	
@@ -3814,8 +3817,10 @@ public:
 		stmt->setString(2, handler->GetSession()->GetPlayer()->GetName().c_str());
 		WorldDatabase.Execute(stmt);
 
+		TC_LOG_INFO("misc", "Reloading Terrain World Maps...");
+		sObjectMgr->LoadTerrainWorldMaps();
 
-		handler->SendSysMessage("Phase complète ! Celle-ci sera disponible après un reboot.");
+		handler->SendSysMessage("Phase correctement intégrée !");
 
 	}
 

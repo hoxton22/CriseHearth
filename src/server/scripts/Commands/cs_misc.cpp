@@ -134,6 +134,8 @@ public:
 			{ "upstep2", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleUpdateItem2, "" },
 			{ "upstep3", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleUpdateItem3, "" },
 			{ "disables", rbac::RBAC_PERM_COMMAND_PINFO, false, &HandleDisablesCommand, "" },
+			{ "createphase", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleCreatePhaseCommand, "" },
+			{ "setphase", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleSetPhaseCommand, "" },
 			
         };
         return commandTable;
@@ -3733,7 +3735,7 @@ public:
 		if (!*args)
 			return false;
 		
-		// Crée les espaces
+		// Space
 		char const* px = strtok((char*)args, " ");
 		char* py = strtok(NULL, "");
 
@@ -3756,6 +3758,67 @@ public:
 		handler->SendSysMessage("Tables Disables redémarré et spell bloqué.");
 
 	}
+
+	static bool HandleCreatePhaseCommand(ChatHandler* handler, char const* args)
+	{
+		if (!*args)
+			return false;
+
+		// Space
+
+		char const* px = strtok((char*)args, " ");
+		char const* py = strtok(NULL, " ");
+
+		if (!px|| !py)
+			return false;
+
+		uint32 phaseID = uint32(atoi(px));
+		uint32 phaseNewMapID = uint32(atoi(py));
+
+
+		// SQL  
+
+		PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_CREATE_PHASE);
+		stmt->setUInt32 (0, phaseID); // Format : MapID
+		stmt->setUInt32 (1, phaseNewMapID); // Format : New Map ID
+		stmt->setString(2, handler->GetSession()->GetPlayer()->GetName().c_str());
+		WorldDatabase.Execute(stmt);
+
+
+		handler->SendSysMessage("Phase crée ! Procéder à la commande .setphase maintenant!");
+
+	}
+	
+	static bool HandleSetPhaseCommand(ChatHandler* handler, char const* args)
+	{
+		if (!*args)
+			return false;
+
+		// Space
+
+		char const* px = strtok((char*)args, " ");
+		char const* py = strtok(NULL, " ");
+
+		if (!px || !py)
+			return false;
+
+		uint32 phaseMapID = uint32(atoi(px));
+		uint32 phaseOriginalMapID = uint32(atoi(py));
+
+
+		// SQL  
+
+		PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_SET_PHASE);
+		stmt->setUInt32(0, phaseMapID); // Format : = PhaseNewMapID (.createphase)
+		stmt->setUInt32(1, phaseOriginalMapID); // Format :  Map ID (original Map ID, var = phaseID)
+		stmt->setString(2, handler->GetSession()->GetPlayer()->GetName().c_str());
+		WorldDatabase.Execute(stmt);
+
+
+		handler->SendSysMessage("Phase complète ! Celle-ci sera disponible après un reboot.");
+
+	}
+
 
 };
 

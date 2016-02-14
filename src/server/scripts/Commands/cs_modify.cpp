@@ -70,6 +70,8 @@ public:
             { "standstate",   rbac::RBAC_PERM_COMMAND_MODIFY_STANDSTATE,   false, &HandleModifyStandStateCommand,    "" },
             { "talentpoints", rbac::RBAC_PERM_COMMAND_MODIFY_TALENTPOINTS, false, &HandleModifyTalentCommand,        "" },
             { "xp",           rbac::RBAC_PERM_COMMAND_MODIFY_XP,           false, &HandleModifyXPCommand,            "" },
+			//custom
+			{ "cpower",		  rbac::RBAC_PERM_COMMAND_MODIFY_MANA,		   false, &HandleModifyCPower,				 "" },
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -1412,6 +1414,109 @@ public:
         target->GiveXP(xp, nullptr);
         return true;
     }
+
+	 // MOD POWER
+	static bool HandleModifyCPower(ChatHandler* handler, const char* args)
+	{
+		if (!*args)
+			return false;
+
+		// patchwork from valkyrion :ppppp
+		char const* px = strtok((char*)args, " ");
+		char const* py = strtok(NULL, " ");
+		
+			if (!px || !py)
+			 return false;
+
+		uint32 powertyp = uint32(atoi(px));
+		int32 powervalue = int32(atoi(py));
+		Powers pow;
+
+		Player* target = handler->getSelectedPlayerOrSelf();
+		if (!target)
+		{
+			handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
+			handler->SetSentErrorMessage(true);
+			return false;
+		}
+
+		// check online security
+		if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
+			return false;
+
+		//case switch gay
+		switch (powertyp)
+		{
+			case 0: 
+				pow = POWER_MANA;
+				break;
+			case 1:
+				pow = POWER_RAGE;
+				break;
+			case 2:
+				pow = POWER_FOCUS;
+				break;
+			case 3:
+				pow = POWER_ENERGY;
+				break;
+			case 4:
+				pow = POWER_COMBO_POINTS;
+				break;
+			case 5:
+				pow = POWER_RUNES;
+				break;
+			case 6:
+				pow = POWER_RUNIC_POWER;
+				break;
+			case 7:
+				pow = POWER_SOUL_SHARDS;
+				break;
+			case 8:
+				pow = POWER_ECLIPSE;
+				break; 
+			case 9:
+				pow = POWER_HOLY_POWER;
+				break;
+			case 10:
+				pow = POWER_ALTERNATE_POWER;
+				break;
+			case 11:
+				pow = POWER_DARK_FORCE;
+				break;
+			case 12:
+				pow = POWER_CHI;
+				break;
+			case 13:
+				pow = POWER_SHADOW_ORBS;
+				break;
+			case 14:
+				pow = POWER_BURNING_EMBERS;
+				break;
+			case 15:
+				pow = POWER_DEMONIC_FURY;
+				break;
+			case 16:
+				pow = POWER_ARCANE_CHARGES;
+				break;
+			case 17:
+				pow = MAX_POWERS;
+				break;
+			case 127:
+				pow = POWER_ALL;
+				break;
+			default:
+				handler->PSendSysMessage("Mauvais type !");
+				return false;
+				break;
+		}
+
+		// handler->PSendSysMessage("tagueul");
+
+		//target->SetMaxPower(POWER_MANA, manam);
+		target->SetPower(pow, powervalue);
+
+		return true;
+	}
 };
 
 void AddSC_modify_commandscript()

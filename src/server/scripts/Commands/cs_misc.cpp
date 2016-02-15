@@ -3777,21 +3777,29 @@ public:
 
 
 		// SQL  
-
+		QueryResult guidSql = WorldDatabase.PQuery("SELECT Id FROM terrain_phase_info WHERE Id = %u", phaseID);
+		if (!guidSql)
+	{
 		PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_CREATE_PHASE);
 		stmt->setUInt32 (0, phaseID); // Format : MapID
 		stmt->setUInt32 (1, phaseNewMapID); // Format : New Map ID
 		stmt->setString(2, handler->GetSession()->GetPlayer()->GetName().c_str());
 		WorldDatabase.Execute(stmt);
 		
-		TC_LOG_INFO("misc", "Reloading Terrain Phase Info...");
+		("misc", "Reloading Terrain CREATE PHASE ");
 		sObjectMgr->LoadTerrainPhaseInfo();
-	
-
-		handler->SendSysMessage("Phase crée, prochaine étape : .setphase");
+		sObjectMgr->LoadTerrainWorldMaps();
+		handler->PSendSysMessage(LANG_CREATEPHASE_OK, phaseID);
 
 	}
-	
+	else
+	{
+		handler->PSendSysMessage(LANG_CREATEPHASE_INVALID, phaseID);
+	}
+		
+
+	}
+
 	static bool HandleSetPhaseCommand(ChatHandler* handler, char const* args)
 	{
 		if (!*args)
@@ -3810,21 +3818,28 @@ public:
 
 
 		// SQL  
+		QueryResult guidSql = WorldDatabase.PQuery("SELECT TerrainSwapMap FROM terrain_worldmap WHERE TerrainSwapMap = %u", phaseMapID);
+		if (!guidSql)
+	{
 
 		PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_SET_PHASE);
 		stmt->setUInt32(0, phaseMapID); // Format : = PhaseNewMapID (.createphase)
 		stmt->setUInt32(1, phaseOriginalMapID); // Format :  Map ID (original Map ID, var = phaseID)
 		stmt->setString(2, handler->GetSession()->GetPlayer()->GetName().c_str());
 		WorldDatabase.Execute(stmt);
-
-		TC_LOG_INFO("misc", "Reloading Terrain World Maps...");
+		
+		TC_LOG_INFO("misc", "Reloading Terrain SET PHASE");
 		sObjectMgr->LoadTerrainWorldMaps();
-
-		handler->SendSysMessage("Phase correctement intégrée !");
-
+		sObjectMgr->LoadTerrainPhaseInfo();
+		handler->PSendSysMessage(LANG_SETPHASE_OK, phaseMapID);
+	}
+	else
+	{
+		handler->PSendSysMessage(LANG_SETPHASE_INVALID, phaseMapID);
 	}
 
 
+	}
 };
 
 void AddSC_misc_commandscript()

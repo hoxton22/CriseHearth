@@ -3795,6 +3795,9 @@ public:
 	else
 	{
 		handler->PSendSysMessage(LANG_CREATEPHASE_INVALID, phaseID);
+		TC_LOG_INFO("misc", "Reload pour les PD qu'utilise une ID déjà prise");
+		sObjectMgr->LoadTerrainPhaseInfo();
+		sObjectMgr->LoadTerrainWorldMaps();
 	}
 		
 
@@ -3836,6 +3839,9 @@ public:
 	else
 	{
 		handler->PSendSysMessage(LANG_SETPHASE_INVALID, phaseMapID);
+		TC_LOG_INFO("misc", "Reload pour les PD qu'utilise une ID déjà prise");
+		sObjectMgr->LoadTerrainPhaseInfo();
+		sObjectMgr->LoadTerrainWorldMaps();
 	}
 
 

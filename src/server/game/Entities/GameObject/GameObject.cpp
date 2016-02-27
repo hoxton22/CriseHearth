@@ -1266,6 +1266,40 @@ void GameObject::Use(Unit* user)
     {
         case GAMEOBJECT_TYPE_DOOR:                          //0
         case GAMEOBJECT_TYPE_BUTTON:                        //1
+		{
+			GameObjectTemplate const* goInfo = GetGOInfo();
+			if (goInfo->entry > 2000000 && user->GetTypeId() == TYPEID_PLAYER)
+			{
+				Player* player = user->ToPlayer();
+				PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_GAMEOBJECT_DOOR);
+				stmt->setUInt64(0, goInfo->entry);
+				PreparedQueryResult result = WorldDatabase.Query(stmt);
+				if (result)
+				{
+					Field* field = result->Fetch();
+					uint64 id_item = field[0].GetUInt64();
+					if (player->HasItemCount(id_item, 1, false))
+					{
+						UseDoorOrButton(0, false, user);
+					}
+					else
+					{	
+						player->GetSession()->SendNotification("Vous n avez pas l objet pour activer le mecanisme.");
+					}
+					return;
+				}
+				else
+				{
+					UseDoorOrButton(0, false, user);
+					return;
+				}
+			}
+			else
+			{
+				UseDoorOrButton(0, false, user);
+				return;
+			}
+		}
             //doors/buttons never really despawn, only reset to default state/flags
             UseDoorOrButton(0, false, user);
             return;

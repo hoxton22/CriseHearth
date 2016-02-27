@@ -103,7 +103,7 @@ void WorldDatabaseConnection::DoPrepareStatements()
 	PrepareStatement(WORLD_INS_CREATE_PHASE, "INSERT INTO terrain_phase_info(Id, TerrainSwapMap, Comment) VALUES (?, ?, ?)", CONNECTION_ASYNC);
 	PrepareStatement(WORLD_INS_SET_PHASE, "INSERT INTO terrain_worldmap(TerrainSwapMap, WorldMapArea, Comment) VALUES (?, ?, ?)", CONNECTION_ASYNC);
 	PrepareStatement(WORLD_SEL_GAMEOBJECT_TELE, "SELECT pos_x,pos_y,pos_z,mapid,orientation FROM gameobject_tele WHERE entry = ?", CONNECTION_SYNCH);
-
+	PrepareStatement(WORLD_SEL_GAMEOBJECT_DOOR, "SELECT id_item FROM gameobject_door WHERE entry = ?", CONNECTION_SYNCH);
 
 	
 	

@@ -1,0 +1,1 @@
+INSERT INTO `gameobject_door` VALUES (2000001, 116072);

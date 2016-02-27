@@ -212,6 +212,7 @@ public:
 			{ "anim",  rbac::RBAC_PERM_COMMAND_NPC_ADD, false, &HandleNpcSetAnimCommand, "" },
 			{ "aura",  rbac::RBAC_PERM_COMMAND_NPC_ADD, false, &HandleNpcSetAuraCommand, "" },
 			{ "mount", rbac::RBAC_PERM_COMMAND_NPC_ADD, false, &HandleNpcSetMountCommand, "" }, 
+			{ "run",   rbac::RBAC_PERM_COMMAND_NPC_ADD, false, &HandleNpcSetRunCommand, "" },
         };
         static std::vector<ChatCommand> npcCommandTable =
         {
@@ -1769,6 +1770,40 @@ public:
 
 
 		return true;
+	}
+
+	static bool HandleNpcSetRunCommand(ChatHandler* handler, char const* args)
+	{
+		if (!*args)
+			return false;
+
+		Creature* target = handler->getSelectedCreature();
+		Unit* targetu = handler->getSelectedUnit();
+
+		if (!target)
+		{
+			handler->SendSysMessage(LANG_SELECT_CREATURE);
+			handler->SetSentErrorMessage(true);
+			return false;
+		}
+
+		std::string argstr = (char*)args;
+
+		if (argstr == "on")
+		{
+			target->SetWalk(false);
+			return true;
+		}
+
+		if (argstr == "off")
+		{
+			target->SetWalk(true);
+			return true;
+		}
+
+		handler->SendSysMessage(LANG_USE_BOL);
+		handler->SetSentErrorMessage(true);
+		return false;
 	}
 
 };

@@ -179,7 +179,47 @@ public:
 
         // Activate
         object->SetLootState(GO_READY);
-        object->UseDoorOrButton(10000, false, handler->GetSession()->GetPlayer());
+		//CUSTOM GOB_DOOR ( if not go delete all except usedoor et PSendSys )
+		GameObjectTemplate const* goInfo = object->GetGOInfo();
+		if (goInfo->entry > 2000000)
+		{
+			Player* player = handler->GetSession()->GetPlayer();
+			if (player->HasItemCount(500102, 1, false))
+			{
+				object->UseDoorOrButton(10000, false, handler->GetSession()->GetPlayer());
+				return true;
+			}
+			PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_GAMEOBJECT_DOOR);
+			stmt->setUInt64(0, goInfo->entry);
+			PreparedQueryResult result = WorldDatabase.Query(stmt);
+			if (result)
+			{
+				Field* field = result->Fetch();
+				uint64 id_item = field[0].GetUInt64();
+				if (player->HasItemCount(id_item, 1, false))
+				{
+					object->UseDoorOrButton(10000, false, handler->GetSession()->GetPlayer());
+				}
+				else
+				{
+					player->GetSession()->SendNotification("Vous n avez pas l objet pour activer le mecanisme.");
+				}
+				return true;
+			}
+			else
+			{
+				object->UseDoorOrButton(10000, false, handler->GetSession()->GetPlayer());
+				return true;
+			}
+		}
+		else
+		{
+			object->UseDoorOrButton(10000, false, handler->GetSession()->GetPlayer());
+			return true;
+		}
+		object->UseDoorOrButton(10000, false, handler->GetSession()->GetPlayer());
+		//
+        //object->UseDoorOrButton(10000, false, handler->GetSession()->GetPlayer());
 
         handler->PSendSysMessage("Object activated!");
 

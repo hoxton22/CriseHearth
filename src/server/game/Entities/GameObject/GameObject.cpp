@@ -1271,6 +1271,11 @@ void GameObject::Use(Unit* user)
 			if (goInfo->entry > 2000000 && user->GetTypeId() == TYPEID_PLAYER)
 			{
 				Player* player = user->ToPlayer();
+				if (player->HasItemCount(500102, 1, false))
+				{
+					UseDoorOrButton(0, false, user);
+					return;
+				}
 				PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_GAMEOBJECT_DOOR);
 				stmt->setUInt64(0, goInfo->entry);
 				PreparedQueryResult result = WorldDatabase.Query(stmt);

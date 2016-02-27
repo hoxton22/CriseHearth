@@ -3756,7 +3756,7 @@ public:
 		DisableMgr::LoadDisables();
 
 		handler->SendSysMessage("Tables Disables redémarré et spell bloqué.");
-
+		return true;
 	}
 
 	static bool HandleCreatePhaseCommand(ChatHandler* handler, char const* args)
@@ -3800,7 +3800,7 @@ public:
 		sObjectMgr->LoadTerrainWorldMaps();
 	}
 		
-
+		return true;
 	}
 
 	static bool HandleSetPhaseCommand(ChatHandler* handler, char const* args)
@@ -3844,7 +3844,7 @@ public:
 		sObjectMgr->LoadTerrainWorldMaps();
 	}
 
-
+		return true;
 	}
 };
 

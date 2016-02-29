@@ -3859,7 +3859,11 @@ public:
 		std::string playerName = handler->GetSession()->GetPlayer()->GetName();
 		ObjectGuid::LowType guidAccount = handler->GetSession()->GetAccountGUID().GetCounter();
 		//SQL
-		
+		PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_REQUEST);
+		stmt->setString(0, playerName.c_str());
+		stmt->setInt64(1, guidAccount);
+		stmt->setString(2, msg);
+		WorldDatabase.Execute(stmt);
 		//
 		handler->SendSysMessage("Requete envoyee");
 		return true;
@@ -3867,8 +3871,10 @@ public:
 
 	static bool HandleCancelRequeteCommand(ChatHandler* handler, char const* args)
 	{
+		std::string playerName = handler->GetSession()->GetPlayer()->GetName();
 		//SQL retirer toutes sauf si c'est closed
-
+		PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_REQUEST_BY_NAME);
+		stmt->setString(0, playerName.c_str());
 		//
 		handler->SendSysMessage("Toutes vos requetes sont retirees");
 		return true;

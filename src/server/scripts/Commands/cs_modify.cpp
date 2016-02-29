@@ -1265,6 +1265,7 @@ public:
 
         if (target->GetTypeId() == TYPEID_PLAYER)
             target->ToPlayer()->SendUpdatePhasing();
+		handler->PSendSysMessage("Je suis dans la phase %u", phase);
 
         return true;
     }

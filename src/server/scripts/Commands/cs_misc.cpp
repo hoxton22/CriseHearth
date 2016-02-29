@@ -3768,7 +3768,6 @@ public:
 	{
 		if (!*args)
 			return false;
-
 		// Space
 
 		char const* px = strtok((char*)args, " ");
@@ -3803,8 +3802,8 @@ public:
 		TC_LOG_INFO("misc", "Reload pour les PD qu'utilise une ID déjà prise");
 		sObjectMgr->LoadTerrainPhaseInfo();
 		sObjectMgr->LoadTerrainWorldMaps();
+		return false;
 	}
-		
 		return true;
 	}
 
@@ -3847,6 +3846,7 @@ public:
 		TC_LOG_INFO("misc", "Reload pour les PD qu'utilise une ID déjà prise");
 		sObjectMgr->LoadTerrainPhaseInfo();
 		sObjectMgr->LoadTerrainWorldMaps();
+		return false;
 	}
 
 		return true;

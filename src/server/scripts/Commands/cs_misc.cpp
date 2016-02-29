@@ -3862,7 +3862,7 @@ public:
 		{
 			if (itr->second->GetSession()->GetSecurity() >= 2)
 			{
-				ChatHandler(itr->second->GetSession()).PSendSysMessage("Une nouvelle requete a ete lance par %s (accountId : %u)", playerName.c_str(),guidAccount);
+				ChatHandler(itr->second->GetSession()).PSendSysMessage("--- NOUVELLE REQUETE --- par %s (accountId : %u)", playerName.c_str(),guidAccount);
 			}
 		}
 		return;

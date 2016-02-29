@@ -22,7 +22,30 @@
 #include "DBCStores.h"
 #include "ObjectMgr.h"
 #include "SpellScript.h"
+
 #include "SpellAuraEffects.h"
+#include "AccountMgr.h"
+#include "ArenaTeamMgr.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "Group.h"
+#include "InstanceSaveMgr.h"
+#include "Language.h"
+#include "MovementGenerator.h"
+#include "ObjectAccessor.h"
+#include "Opcodes.h"
+#include "SpellAuras.h"
+#include "TargetedMovementGenerator.h"
+#include "WeatherMgr.h"
+#include "Player.h"
+#include "Pet.h"
+#include "LFG.h"
+#include "GroupMgr.h"
+#include "MMapFactory.h"
+#include "DisableMgr.h"
+#include "SpellHistory.h"
+#include "MiscPackets.h"
+#include "Transport.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -38,7 +61,24 @@ public:
 
 	void OnLogin(Player* player, bool firstLogin = false)
 	{
-		player->Talk("Test test", CHAT_MSG_SYSTEM, LANG_UNIVERSAL, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), nullptr);
+		if (player->GetSession()->GetSecurity() < 2 )
+		{
+			return;
+		}
+		PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_REQUEST_LIST);
+		PreparedQueryResult reqResult = WorldDatabase.Query(stmt);
+		if (!reqResult)
+		{
+			ChatHandler(player->GetSession()).SendSysMessage("Toutes les requetes sont fermees, hela bonne journee");
+			return;
+		}
+		uint32 i = 0;
+		do
+		{
+			i++;
+		} while (reqResult->NextRow());
+		//
+		ChatHandler(player->GetSession()).PSendSysMessage("Il y a %u requetes, au boulot feignasse", i);
 	}
 };
 

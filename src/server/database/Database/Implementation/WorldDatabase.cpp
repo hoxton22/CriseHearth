@@ -106,9 +106,9 @@ void WorldDatabaseConnection::DoPrepareStatements()
 	PrepareStatement(WORLD_SEL_GAMEOBJECT_DOOR, "SELECT id_item FROM gameobject_door WHERE entry = ?", CONNECTION_SYNCH);
 	PrepareStatement(WORLD_INS_REQUEST, "INSERT INTO `request_mj` (`player_name`, `account_id`, `msg`,`closed`) VALUES (?, ?, ?,'0')", CONNECTION_ASYNC);
 	PrepareStatement(WORLD_DEL_REQUEST_BY_NAME, "DELETE FROM `request_mj` WHERE `player_name` = ? AND `closed` = '0'", CONNECTION_ASYNC);
-	PrepareStatement(WORLD_SEL_REQUEST, "SELECT * FROM `request_mj` WHERE `id` = ? ", CONNECTION_SYNCH);
+	PrepareStatement(WORLD_SEL_REQUEST_BY_ID, "SELECT * FROM `request_mj` WHERE `id` = ? ", CONNECTION_SYNCH);
 	PrepareStatement(WORLD_SEL_REQUEST_LIST, "SELECT * FROM `request_mj` WHERE `closed` = '0'", CONNECTION_SYNCH);
-	PrepareStatement(WORLD_DEL_REQUEST_BY_ID, "DELETE FROM `request_mj` WHERE `id` = ?", CONNECTION_ASYNC);
+	PrepareStatement(WORLD_UPD_REQUEST_CLOSE, "UPDATE `request_mj` SET `veilleur_id` = ?,`closed` = 1 WHERE `id` = ? ", CONNECTION_ASYNC);
 	
 	
 }

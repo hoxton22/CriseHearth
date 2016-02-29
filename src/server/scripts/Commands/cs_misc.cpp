@@ -3883,21 +3883,96 @@ public:
 
 	static bool HandleVeilleurCommand(ChatHandler* handler, char const* args)
 	{
+		if (!*args)
+		{
+			handler->SendSysMessage("Mets une id aaaamatete");
+			return false;
+		}
+		int32 id = (int32) atoi(args);
+		if (id < 0 || id == 0)
+		{
+			handler->SendSysMessage("Pas d id negatif ou egale a zero, boyard de veilleur");
+			return false;
+		}
 		//SQL prendre joueur , guidaccount et msg where id = ...
-
+		PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_REQUEST_BY_ID);
+		stmt->setInt32(0, id);
+		PreparedQueryResult reqResult = WorldDatabase.Query(stmt);
+		if (!reqResult)
+		{
+			handler->SendSysMessage("Pas de requete avec cette id");
+			return false;
+		}
+		Field* field = reqResult->Fetch();
+		std::string playerName = field[1].GetString();
+		uint64 accountId = field[2].GetUInt64();
+		std::string msg = field[3].GetString();
+		uint64 veilleurId = field[4].GetUInt64();
+		bool closed = field[5].GetBool();
 		//
+		if (closed == true)
+		{
+			handler->SendSysMessage("ATTENTION cette requete a deja ete ferme, je te la montre quand même");
+		}
+		handler->SendSysMessage("-------------------");
+		handler->PSendSysMessage("Requete de %s , accountId = %u", playerName.c_str(), accountId);
+		handler->SendSysMessage("-------------------");
+		handler->PSendSysMessage("%s", msg);
 		return true;
 	}
 	static bool HandleVeilleurListCommand(ChatHandler* handler, char const* args)
 	{
-		//SQL select joueur, guidaccount msg where closed = 0
+		//SQL
+		PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_REQUEST_LIST);
+		PreparedQueryResult reqResult = WorldDatabase.Query(stmt);
+		if (!reqResult)
+		{
+			handler->SendSysMessage("Pas de requete pour le moment, rpq bien boyard de veilleur");
+			return true;
+		}
+		uint32 i = 0;
+		handler->SendSysMessage("-------------------");
+		do
+		{
+			Field* field = reqResult->Fetch();
+			int32 id = field[0].GetInt32();
+			std::string playerName = field[1].GetString();
+			uint64 accountId = field[2].GetUInt64();
+			i++;
+			handler->PSendSysMessage("Requete ID : %u (%s, accountId = %u)", id, playerName.c_str(), accountId);
+		} while (reqResult->NextRow());
 		//
+		handler->SendSysMessage("-------------------");
+		handler->PSendSysMessage("Il y a %u requetes, au boulot feignasse", i);
 		return true;
 	}
 	static bool HandleCloseRequeteCommand(ChatHandler* handler, char const* args)
 	{
-		//SQL 
-		//
+		if (!*args)
+		{
+			handler->SendSysMessage("aaa ma tete t a pas mis d id");
+			return false;
+		}
+		int id = atoi(args);
+		if (id < 0 || id == 0)
+		{
+			handler->SendSysMessage("Pas de valeur negatif ou zero pour l id putain t con ou quoi");
+			return false;
+		}
+		PreparedStatement* reqSql = WorldDatabase.GetPreparedStatement(WORLD_SEL_REQUEST_BY_ID);
+		reqSql->setInt32(0, id);
+		PreparedQueryResult resultSelect = WorldDatabase.Query(reqSql);
+		if (!resultSelect)
+		{
+			handler->SendSysMessage("Pas de requete avec cette id");
+			return false;
+		}
+		ObjectGuid::LowType guidAccount = handler->GetSession()->GetAccountGUID().GetCounter();
+		PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_REQUEST_CLOSE);
+		stmt->setUInt64(0, guidAccount);
+		stmt->setUInt32(1, id);
+		WorldDatabase.Execute(stmt);
+		handler->PSendSysMessage("Requete #%u fermee, gg wp", id);
 		return true;
 	}
 

@@ -136,6 +136,11 @@ public:
 			{ "disables", rbac::RBAC_PERM_COMMAND_PINFO, false, &HandleDisablesCommand, "" },
 			{ "createphase", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleCreatePhaseCommand, "" },
 			{ "setphase", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleSetPhaseCommand, "" },
+			{ "requete", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleRequeteCommand, "" },
+			{ "stoprequete", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleCancelRequeteCommand, "" },
+			{ "veilleur", rbac::RBAC_PERM_COMMAND_KICK, false, &HandleVeilleurCommand, "" },
+			{ "veilleurlist", rbac::RBAC_PERM_COMMAND_KICK, false, &HandleVeilleurListCommand, "" },
+			{ "closerequete", rbac::RBAC_PERM_COMMAND_KICK, false, &HandleCloseRequeteCommand, "" },
 			
         };
         return commandTable;
@@ -3846,6 +3851,49 @@ public:
 
 		return true;
 	}
+	static bool HandleRequeteCommand(ChatHandler* handler, char const* args)
+	{
+		if (!*args)
+			return false;
+		char* msg = (char*)args;
+		std::string playerName = handler->GetSession()->GetPlayer()->GetName();
+		ObjectGuid::LowType guidAccount = handler->GetSession()->GetAccountGUID().GetCounter();
+		//SQL
+		
+		//
+		handler->SendSysMessage("Requete envoyee");
+		return true;
+	}
+
+	static bool HandleCancelRequeteCommand(ChatHandler* handler, char const* args)
+	{
+		//SQL retirer toutes sauf si c'est closed
+
+		//
+		handler->SendSysMessage("Toutes vos requetes sont retirees");
+		return true;
+	}
+
+	static bool HandleVeilleurCommand(ChatHandler* handler, char const* args)
+	{
+		//SQL prendre joueur , guidaccount et msg where id = ...
+		//
+		return true;
+	}
+	static bool HandleVeilleurListCommand(ChatHandler* handler, char const* args)
+	{
+		//SQL select joueur, guidaccount msg where closed = 0
+		//
+		return true;
+	}
+	static bool HandleCloseRequeteCommand(ChatHandler* handler, char const* args)
+	{
+		//SQL 
+		//
+		return true;
+	}
+
+
 };
 
 void AddSC_misc_commandscript()

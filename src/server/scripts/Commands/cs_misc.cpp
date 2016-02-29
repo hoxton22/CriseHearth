@@ -3851,6 +3851,22 @@ public:
 
 		return true;
 	}
+
+	static void SendAlertRequestForMJ(ChatHandler* handler)
+	{
+		std::string playerName = handler->GetSession()->GetPlayer()->GetName();
+		ObjectGuid::LowType guidAccount = handler->GetSession()->GetAccountGUID().GetCounter();
+		boost::shared_lock<boost::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
+		HashMapHolder<Player>::MapType const& m = ObjectAccessor::GetPlayers();
+		for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
+		{
+			if (itr->second->GetSession()->GetSecurity() >= 2)
+			{
+				ChatHandler(itr->second->GetSession()).PSendSysMessage("Une nouvelle requete a ete lance par %s (accountId : %u)", playerName.c_str(),guidAccount);
+			}
+		}
+		return;
+	}
 	static bool HandleRequeteCommand(ChatHandler* handler, char const* args)
 	{
 		if (!*args)
@@ -3864,7 +3880,7 @@ public:
 		stmt->setInt64(1, guidAccount);
 		stmt->setString(2, msg);
 		WorldDatabase.Execute(stmt);
-		//
+		SendAlertRequestForMJ(handler);
 		handler->SendSysMessage("Requete envoyee");
 		return true;
 	}

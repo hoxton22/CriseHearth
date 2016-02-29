@@ -3875,6 +3875,7 @@ public:
 		//SQL retirer toutes sauf si c'est closed
 		PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_REQUEST_BY_NAME);
 		stmt->setString(0, playerName.c_str());
+		WorldDatabase.Execute(stmt);
 		//
 		handler->SendSysMessage("Toutes vos requetes sont retirees");
 		return true;
@@ -3883,6 +3884,7 @@ public:
 	static bool HandleVeilleurCommand(ChatHandler* handler, char const* args)
 	{
 		//SQL prendre joueur , guidaccount et msg where id = ...
+
 		//
 		return true;
 	}

@@ -3015,6 +3015,28 @@ void Unit::UpdateUnderwaterState(Map* m, float x, float y, float z)
 void Unit::DeMorph()
 {
     SetDisplayId(GetNativeDisplayId());
+	//Permamorph
+	if (this->GetTypeId() != TYPEID_PLAYER)
+	{
+		return;
+	}
+	std::string playerName = this->ToPlayer()->GetName();
+	PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CHARACTERCUSTOM_ALL);
+	stmt->setString(0, playerName.c_str());
+	PreparedQueryResult reqResult = WorldDatabase.Query(stmt);
+	if (!reqResult) // Insérer le joueur si c'est la première fois
+	{
+		PreparedStatement* stmtCreate = WorldDatabase.GetPreparedStatement(WORLD_INS_CHARACTERCUSTOM_PERMAMORPH);
+		stmtCreate->setUInt32(0, 0);
+		stmtCreate->setString(1, playerName.c_str());
+		WorldDatabase.Execute(stmtCreate);
+		return;
+	}
+	//Si pas on update sa ligne
+	PreparedStatement* stmtUpdate = WorldDatabase.GetPreparedStatement(WORLD_UPD_CHARACTERCUSTOM_PERMAMORPH);
+	stmtUpdate->setUInt32(0, 0);
+	stmtUpdate->setString(1, playerName.c_str());
+	WorldDatabase.Execute(stmtUpdate);
 }
 
 Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32 *baseAmount /*= NULL*/, Item* castItem /*= NULL*/, ObjectGuid casterGUID /*= 0*/, int32 castItemLevel /*= -1*/)
@@ -12783,6 +12805,27 @@ void Unit::SetDisplayId(uint32 modelId)
     // Set Gender by modelId
     if (CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelInfo(modelId))
         SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, minfo->gender);
+	if (this->GetTypeId() != TYPEID_PLAYER)
+	{
+		return;
+	}
+	std::string playerName = this->ToPlayer()->GetName();
+	PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CHARACTERCUSTOM_ALL);
+	stmt->setString(0, playerName.c_str());
+	PreparedQueryResult reqResult = WorldDatabase.Query(stmt);
+	if (!reqResult) // Insérer le joueur si c'est la première fois
+	{
+		PreparedStatement* stmtCreate = WorldDatabase.GetPreparedStatement(WORLD_INS_CHARACTERCUSTOM_PERMAMORPH);
+		stmtCreate->setUInt32(0, modelId);
+		stmtCreate->setString(1, playerName.c_str());
+		WorldDatabase.Execute(stmtCreate);
+		return;
+	}
+	//Si pas on update sa ligne
+	PreparedStatement* stmtUpdate = WorldDatabase.GetPreparedStatement(WORLD_UPD_CHARACTERCUSTOM_PERMAMORPH);
+	stmtUpdate->setUInt32(0, modelId);
+	stmtUpdate->setString(1, playerName.c_str());
+	WorldDatabase.Execute(stmtUpdate);
 }
 
 void Unit::RestoreDisplayId()

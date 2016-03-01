@@ -697,6 +697,28 @@ public:
 
         target->SetObjectScale(Scale);
 
+		//PermaScale
+		if (target->GetTypeId() != TYPEID_PLAYER)
+		{
+			return true;
+		}
+		std::string playerName = target->ToPlayer()->GetName();
+		PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CHARACTERCUSTOM_ALL);
+		stmt->setString(0,playerName.c_str());
+		PreparedQueryResult reqResult = WorldDatabase.Query(stmt);
+		if (!reqResult) // Insérer le joueur si c'est la première fois
+		{
+			PreparedStatement* stmtCreate = WorldDatabase.GetPreparedStatement(WORLD_INS_CHARACTERCUSTOM_PERMASCALE);
+			stmtCreate->setFloat(0, Scale);
+			stmtCreate->setString(1, playerName.c_str());
+			WorldDatabase.Execute(stmtCreate);
+			return true;
+		}
+		//Si pas on update sa ligne
+		PreparedStatement* stmtUpdate = WorldDatabase.GetPreparedStatement(WORLD_UPD_CHARACTERCUSTOM_PERMASCALE);
+		stmtUpdate->setFloat(0, Scale);
+		stmtUpdate->setString(1, playerName.c_str());
+		WorldDatabase.Execute(stmtUpdate);
         return true;
     }
 
@@ -1245,8 +1267,7 @@ public:
             return false;
 
         target->SetDisplayId(display_id);
-
-        return true;
+		return true;
     }
 
     // Toggles a phaseid on a player
@@ -1354,7 +1375,6 @@ public:
             return false;
 
         target->DeMorph();
-
         return true;
     }
 

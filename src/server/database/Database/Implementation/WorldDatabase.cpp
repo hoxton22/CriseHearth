@@ -109,6 +109,13 @@ void WorldDatabaseConnection::DoPrepareStatements()
 	PrepareStatement(WORLD_SEL_REQUEST_BY_ID, "SELECT * FROM `request_mj` WHERE `id` = ? ", CONNECTION_SYNCH);
 	PrepareStatement(WORLD_SEL_REQUEST_LIST, "SELECT * FROM `request_mj` WHERE `closed` = '0'", CONNECTION_SYNCH);
 	PrepareStatement(WORLD_UPD_REQUEST_CLOSE, "UPDATE `request_mj` SET `veilleur_id` = ?,`closed` = 1 WHERE `id` = ? ", CONNECTION_ASYNC);
-	
+	PrepareStatement(WORLD_SEL_CHARACTERCUSTOM_ALL, "SELECT * FROM character_custom WHERE playerName = ?", CONNECTION_SYNCH);
+	PrepareStatement(WORLD_SEL_CHARACTERCUSTOM_PHASE, "SELECT phaseId FROM character_custom WHERE playerName = ?", CONNECTION_SYNCH);
+	PrepareStatement(WORLD_INS_CHARACTERCUSTOM_PERMASCALE, "INSERT INTO character_custom (scale, playerName) VALUES (?, ?)", CONNECTION_ASYNC);
+	PrepareStatement(WORLD_INS_CHARACTERCUSTOM_PERMAMORPH, "INSERT INTO character_custom (displayId, playerName) VALUES (?, ?)", CONNECTION_ASYNC);
+	PrepareStatement(WORLD_INS_CHARACTERCUSTOM_PHASE, "INSERT INTO character_custom (phaseId, playerName) VALUES (?, ?)", CONNECTION_ASYNC);
+	PrepareStatement(WORLD_UPD_CHARACTERCUSTOM_PHASE, "UPDATE character_custom SET phaseId = ? WHERE playerName = ?", CONNECTION_ASYNC);
+	PrepareStatement(WORLD_UPD_CHARACTERCUSTOM_PERMAMORPH, "UPDATE character_custom SET displayId = ? WHERE playerName = ?", CONNECTION_ASYNC);
+	PrepareStatement(WORLD_UPD_CHARACTERCUSTOM_PERMASCALE, "UPDATE character_custom SET scale = ? WHERE playerName = ?", CONNECTION_ASYNC);
 	
 }

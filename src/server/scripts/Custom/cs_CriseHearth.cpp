@@ -54,12 +54,40 @@
 #endif
 
 
+class Player_permamorphscale : public PlayerScript //Dis no respect sneaky case
+{
+public :
+	Player_permamorphscale() : PlayerScript("Player_permamorphscale"){}
+	void OnLogin(Player* player, bool firstLogin)
+	{	
+		std::string playerName = player->GetName();
+		PreparedStatement* stmtSel = WorldDatabase.GetPreparedStatement(WORLD_SEL_CHARACTERCUSTOM_ALL);
+		stmtSel->setString(0, playerName.c_str());
+		PreparedQueryResult reqResult = WorldDatabase.Query(stmtSel);
+		if (!reqResult)
+		{
+			return;
+		}
+		Field* field = reqResult->Fetch();
+		uint32 displayId = field[1].GetUInt32();
+		ChatHandler(player->GetSession()).PSendSysMessage("%u", displayId);
+		float scale = field[2].GetFloat();
+		if (displayId != 0)
+		{
+			player->SetDisplayId(displayId);
+		}
+		if (scale != 0)
+		{
+			player->SetObjectScale(scale);
+		}
+	}
+};
 class AlertMJ_connexion : public PlayerScript
 {
 public:
 	AlertMJ_connexion() : PlayerScript("AlertMJ_connexion"){}
 
-	void OnLogin(Player* player, bool firstLogin = false)
+	void OnLogin(Player* player, bool firstLogin )
 	{
 		if (player->GetSession()->GetSecurity() < 2 )
 		{
@@ -85,4 +113,5 @@ public:
 void AddSC_cs_CriseHearth()
 {
 	new AlertMJ_connexion();
+	new Player_permamorphscale();
 }

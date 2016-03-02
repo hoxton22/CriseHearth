@@ -1267,6 +1267,29 @@ public:
             return false;
 
         target->SetDisplayId(display_id);
+	
+		//PermaMorph
+		if (target->GetTypeId() != TYPEID_PLAYER)
+		{
+			return true;
+		}
+		std::string playerName = target->ToPlayer()->GetName();
+		PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CHARACTERCUSTOM_ALL);
+		stmt->setString(0, playerName.c_str());
+		PreparedQueryResult reqResult = WorldDatabase.Query(stmt);
+		if (!reqResult) // Insérer le joueur si c'est la première fois
+		{
+			PreparedStatement* stmtCreate = WorldDatabase.GetPreparedStatement(WORLD_INS_CHARACTERCUSTOM_PERMAMORPH);
+			stmtCreate->setUInt32(0, display_id);
+			stmtCreate->setString(1, playerName.c_str());
+			WorldDatabase.Execute(stmtCreate);
+			return true;
+		}
+		//Si pas on update sa ligne
+		PreparedStatement* stmtUpdate = WorldDatabase.GetPreparedStatement(WORLD_UPD_CHARACTERCUSTOM_PERMAMORPH);
+		stmtUpdate->setUInt32(0, display_id);
+		stmtUpdate->setString(1, playerName.c_str());
+		WorldDatabase.Execute(stmtUpdate);
 		return true;
     }
 
@@ -1286,8 +1309,27 @@ public:
 
         if (target->GetTypeId() == TYPEID_PLAYER)
             target->ToPlayer()->SendUpdatePhasing();
-		handler->PSendSysMessage("Je suis dans la phase %u", phase);
-
+		
+		//Enregistrement de la valeur dans une table
+		if (target->GetTypeId() != TYPEID_PLAYER)
+			return true;
+		std::string playerName = target->ToPlayer()->GetName();
+		PreparedStatement* stmtSel = WorldDatabase.GetPreparedStatement(WORLD_SEL_CHARACTERCUSTOM_ALL);
+		stmtSel->setString(0, playerName.c_str());
+		PreparedQueryResult reqResult = WorldDatabase.Query(stmtSel);
+		if (!reqResult) // Insérer le joueur si c'est la première fois
+		{
+			PreparedStatement* stmtCreate = WorldDatabase.GetPreparedStatement(WORLD_INS_CHARACTERCUSTOM_PHASE);
+			stmtCreate->setUInt32(0, phase);
+			stmtCreate->setString(1, playerName.c_str());
+			WorldDatabase.Execute(stmtCreate);
+			return true;
+		}
+		//Si pas on update sa ligne
+		PreparedStatement* stmtUpdate = WorldDatabase.GetPreparedStatement(WORLD_UPD_CHARACTERCUSTOM_PHASE);
+		stmtUpdate->setUInt32(0, phase);
+		stmtUpdate->setString(1, playerName.c_str());
+		WorldDatabase.Execute(stmtUpdate);
         return true;
     }
 
@@ -1375,7 +1417,31 @@ public:
             return false;
 
         target->DeMorph();
-        return true;
+        
+		//PermaMorph
+
+		if (target->GetTypeId() != TYPEID_PLAYER)
+		{
+			return true;
+		}
+		std::string playerName = target->ToPlayer()->GetName();
+		PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CHARACTERCUSTOM_ALL);
+		stmt->setString(0, playerName.c_str());
+		PreparedQueryResult reqResult = WorldDatabase.Query(stmt);
+		if (!reqResult) // Insérer le joueur si c'est la première fois
+		{
+			PreparedStatement* stmtCreate = WorldDatabase.GetPreparedStatement(WORLD_INS_CHARACTERCUSTOM_PERMAMORPH);
+			stmtCreate->setUInt32(0, 0);
+			stmtCreate->setString(1, playerName.c_str());
+			WorldDatabase.Execute(stmtCreate);
+			return true;
+		}
+		//Si pas on update sa ligne
+		PreparedStatement* stmtUpdate = WorldDatabase.GetPreparedStatement(WORLD_UPD_CHARACTERCUSTOM_PERMAMORPH);
+		stmtUpdate->setUInt32(0, 0);
+		stmtUpdate->setString(1, playerName.c_str());
+		WorldDatabase.Execute(stmtUpdate);
+		return true;
     }
 
     static bool HandleModifyCurrencyCommand(ChatHandler* handler, const char* args)

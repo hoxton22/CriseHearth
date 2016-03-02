@@ -3509,19 +3509,19 @@ public:
 		PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CHARACTERCUSTOM_ALL);
 		stmt->setString(0, playerName.c_str());
 		PreparedQueryResult reqResult = WorldDatabase.Query(stmt);
-		if (!reqResult) // Insérer le joueur si c'est la première fois
+		if (!reqResult) // Si pas de ligne SQL, osef on va pas insérer des 0 pour ce joueur
 		{
-			PreparedStatement* stmtCreate = WorldDatabase.GetPreparedStatement(WORLD_INS_CHARACTERCUSTOM_PERMASCALE);
-			stmtCreate->setFloat(0, 0);
-			stmtCreate->setString(1, playerName.c_str());
-			WorldDatabase.Execute(stmtCreate);
 			return true;
 		}
 		//Si pas on update sa ligne
-		PreparedStatement* stmtUpdate = WorldDatabase.GetPreparedStatement(WORLD_UPD_CHARACTERCUSTOM_PERMASCALE);
-		stmtUpdate->setFloat(0, 0);
-		stmtUpdate->setString(1, playerName.c_str());
-		WorldDatabase.Execute(stmtUpdate);
+		PreparedStatement* stmtUpdateScale = WorldDatabase.GetPreparedStatement(WORLD_UPD_CHARACTERCUSTOM_PERMASCALE);
+		stmtUpdateScale->setFloat(0, 0);
+		stmtUpdateScale->setString(1, playerName.c_str());
+		WorldDatabase.Execute(stmtUpdateScale);
+		PreparedStatement* stmtUpdateMorph = WorldDatabase.GetPreparedStatement(WORLD_UPD_CHARACTERCUSTOM_PERMAMORPH);
+		stmtUpdateMorph->setUInt32(0, 0);
+		stmtUpdateMorph->setString(1, playerName.c_str());
+		WorldDatabase.Execute(stmtUpdateMorph);
 		return true;
 	}
 

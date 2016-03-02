@@ -3016,7 +3016,7 @@ void Unit::DeMorph()
 {
     SetDisplayId(GetNativeDisplayId());
 	//Permamorph
-	if (this->GetTypeId() != TYPEID_PLAYER)
+	/*if (this->GetTypeId() != TYPEID_PLAYER)
 	{
 		return;
 	}
@@ -3036,7 +3036,7 @@ void Unit::DeMorph()
 	PreparedStatement* stmtUpdate = WorldDatabase.GetPreparedStatement(WORLD_UPD_CHARACTERCUSTOM_PERMAMORPH);
 	stmtUpdate->setUInt32(0, 0);
 	stmtUpdate->setString(1, playerName.c_str());
-	WorldDatabase.Execute(stmtUpdate);
+	WorldDatabase.Execute(stmtUpdate);*/
 }
 
 Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32 *baseAmount /*= NULL*/, Item* castItem /*= NULL*/, ObjectGuid casterGUID /*= 0*/, int32 castItemLevel /*= -1*/)
@@ -12805,6 +12805,8 @@ void Unit::SetDisplayId(uint32 modelId)
     // Set Gender by modelId
     if (CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelInfo(modelId))
         SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, minfo->gender);
+	
+	/*PERMA MORPH TEST CODE
 	if (this->GetTypeId() != TYPEID_PLAYER)
 	{
 		return;
@@ -12825,7 +12827,8 @@ void Unit::SetDisplayId(uint32 modelId)
 	PreparedStatement* stmtUpdate = WorldDatabase.GetPreparedStatement(WORLD_UPD_CHARACTERCUSTOM_PERMAMORPH);
 	stmtUpdate->setUInt32(0, modelId);
 	stmtUpdate->setString(1, playerName.c_str());
-	WorldDatabase.Execute(stmtUpdate);
+	WorldDatabase.Execute(stmtUpdate);*/
+	return;
 }
 
 void Unit::RestoreDisplayId()

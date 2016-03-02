@@ -70,7 +70,6 @@ public :
 		}
 		Field* field = reqResult->Fetch();
 		uint32 displayId = field[1].GetUInt32();
-		ChatHandler(player->GetSession()).PSendSysMessage("%u", displayId);
 		float scale = field[2].GetFloat();
 		if (displayId != 0)
 		{
@@ -80,6 +79,10 @@ public :
 		{
 			player->SetObjectScale(scale);
 		}
+		PreparedStatement* stmtUpd = WorldDatabase.GetPreparedStatement(WORLD_UPD_CHARACTERCUSTOM_PHASE);
+		stmtUpd->setUInt32(0, 0);
+		stmtUpd->setString(1, playerName.c_str());
+		WorldDatabase.Execute(stmtUpd);
 	}
 };
 class AlertMJ_connexion : public PlayerScript
@@ -105,7 +108,7 @@ public:
 		{
 			i++;
 		} while (reqResult->NextRow());
-		//
+		
 		ChatHandler(player->GetSession()).PSendSysMessage("Il y a %u requetes, au boulot feignasse", i);
 	}
 };

@@ -141,10 +141,44 @@ public:
 			{ "veilleur", rbac::RBAC_PERM_COMMAND_KICK, false, &HandleVeilleurCommand, "" },
 			{ "veilleurlist", rbac::RBAC_PERM_COMMAND_KICK, false, &HandleVeilleurListCommand, "" },
 			{ "closerequete", rbac::RBAC_PERM_COMMAND_KICK, false, &HandleCloseRequeteCommand, "" },
-			
+			//{ "cleaninv", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleCleanInventoryCommand, "" },
         };
         return commandTable;
     }
+
+	static bool checkNpcPrivate(ChatHandler* handler, Unit* unit)
+	{
+		if (unit->GetTypeId() == TYPEID_PLAYER)
+			return true;
+		uint32 entry = unit->GetEntry();
+		handler->PSendSysMessage("%u", entry);
+
+		PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATUREPRIVATE);
+		stmt->setUInt32(0, entry);
+		PreparedQueryResult reqResult = WorldDatabase.Query(stmt);
+		if (!reqResult)
+		{
+			handler->SendSysMessage("No select");
+			return true;
+		}
+		Field* field = reqResult->Fetch();
+		uint32 sqlEntry = field[0].GetUInt32();
+		if (entry == sqlEntry)
+		{
+			handler->PSendSysMessage("Fetch : %u", sqlEntry);
+			if (handler->GetSession()->GetSecurity() >= 2)
+			{
+				handler->SendSysMessage("Fais gaffe c'est un npc locked ca");
+				return true;
+			}
+			else
+			{
+				handler->SendSysMessage("Ce pnj est modifiable uniquement par le staff.");
+				return false;
+			}
+		}
+		return true;
+	}
 	
 	static bool checkItemPrivate(ChatHandler* handler, uint32 itemId)
 	{
@@ -653,6 +687,8 @@ public:
 			handler->PSendSysMessage("Tu viens de tomber sur un spell crash. Heureusement qu'il est OFF !");
 			return true;
 		}
+		if (!checkNpcPrivate(handler, target))
+			return false;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
 		{
@@ -671,6 +707,8 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
+		if (!checkNpcPrivate(handler, target))
+			return false;
 
         std::string argstr = args;
         if (argstr == "all")
@@ -965,6 +1003,9 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
+
+		if (!checkNpcPrivate(handler, target))
+			return false;
 
         if (Player* player = target->ToPlayer())
             if (handler->HasLowerSecurity(player, ObjectGuid::Empty, false))
@@ -2248,6 +2289,8 @@ public:
         Creature* target = !player->GetTarget().IsEmpty() ? handler->getSelectedCreature() : nullptr;
         if (target)
         {
+			if (!checkNpcPrivate(handler, target))
+				return false;
             if (target->IsPet())
             {
                 handler->SendSysMessage(LANG_SELECT_CREATURE);
@@ -2465,6 +2508,8 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
+		if (!checkNpcPrivate(handler, unit))
+			return false;
 
         handler->PSendSysMessage(LANG_MOVEGENS_LIST, (unit->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature"), unit->GetGUID().ToString().c_str());
 
@@ -2580,6 +2625,8 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
+		if (!checkNpcPrivate(handler, caster))
+			return false;
 
         Player* player = handler->GetSession()->GetPlayer();
 
@@ -2664,6 +2711,8 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
+		if (!checkNpcPrivate(handler,target))
+			return false;
 
         if (Player* player = target->ToPlayer())
             if (handler->HasLowerSecurity(player, ObjectGuid::Empty, false))
@@ -3005,6 +3054,8 @@ public:
         Unit* unit = handler->getSelectedUnit();
         if (!unit)
             return false;
+		if (!checkNpcPrivate(handler, unit))
+			return false;
 
         handler->GetSession()->GetPlayer()->CastSpell(unit, 530, true);
         return true;
@@ -3015,7 +3066,8 @@ public:
         Unit* unit = handler->getSelectedUnit();
         if (!unit)
             unit = handler->GetSession()->GetPlayer();
-
+		if (!checkNpcPrivate(handler, unit))
+			return false;
         unit->RemoveCharmAuras();
 
         return true;
@@ -3026,7 +3078,8 @@ public:
         Unit* unit = handler->getSelectedUnit();
         if (!unit)
             return false;
-
+		if (!checkNpcPrivate(handler, unit))
+			return false;
         handler->GetSession()->GetPlayer()->CastSpell(unit, 6277, true);
         return true;
     }
@@ -3061,6 +3114,8 @@ public:
             return false;
         }
 
+		if (!checkNpcPrivate(handler, target))
+			return false;
         Unit::AuraApplicationMap const& uAuras = target->GetAppliedAuras();
         handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURAS, uAuras.size());
         for (Unit::AuraApplicationMap::const_iterator itr = uAuras.begin(); itr != uAuras.end(); ++itr)
@@ -3204,6 +3259,8 @@ public:
 		Unit* p = handler->GetSession()->GetPlayer();
 		Unit* target = handler->getSelectedUnit();
 
+		if (!checkNpcPrivate(handler, target))
+			return false;
 		uint32 spellId = 102284;
 		uint32 spellId2 = 111232;
 
@@ -3227,6 +3284,8 @@ public:
 			handler->SetSentErrorMessage(true);
 			return false;
 		}
+		if (!checkNpcPrivate(handler, target))
+			return false;
 
 		// number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
 		uint32 spellId = 85267;
@@ -3249,7 +3308,8 @@ public:
 			handler->SetSentErrorMessage(true);
 			return false;
 		}
-
+		if (!checkNpcPrivate(handler, target))
+			return false;
 		// number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
 		uint32 spellId = 94610;
 
@@ -3270,6 +3330,8 @@ public:
 			handler->SetSentErrorMessage(true);
 			return false;
 		}
+		if (!checkNpcPrivate(handler, target))
+			return false;
 
 		// number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
 		uint32 spellId = 80264;
@@ -3292,7 +3354,8 @@ public:
 			handler->SetSentErrorMessage(true);
 			return false;
 		}
-
+		if (!checkNpcPrivate(handler, target))
+			return false;
 		// number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
 		uint32 spellId = 147164;
 
@@ -3312,6 +3375,8 @@ public:
 			handler->SetSentErrorMessage(true);
 			return false;
 		}
+		if (!checkNpcPrivate(handler, target))
+			return false;
 
 		// number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
 		uint32 spellId = 93090;
@@ -3333,7 +3398,8 @@ public:
 			handler->SetSentErrorMessage(true);
 			return false;
 		}
-
+		if (!checkNpcPrivate(handler, target))
+			return false;
 		// number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
 		uint32 spellId = 80109;
 
@@ -3354,7 +3420,8 @@ public:
 			handler->SetSentErrorMessage(true);
 			return false;
 		}
-
+		if (!checkNpcPrivate(handler, target))
+			return false;
 		// number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
 		uint32 spellId = 124064;
 
@@ -3375,7 +3442,8 @@ public:
 			handler->SetSentErrorMessage(true);
 			return false;
 		}
-
+		if (!checkNpcPrivate(handler, target))
+			return false;
 		// number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
 		uint32 spellId = 131076;
 
@@ -3397,7 +3465,8 @@ public:
 			handler->SetSentErrorMessage(true);
 			return false;
 		}
-
+		if (!checkNpcPrivate(handler, target))
+			return false;
 		int choix = atoi(args);
 		uint32 spellId;
 		// number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
@@ -3427,7 +3496,8 @@ public:
 			handler->SetSentErrorMessage(true);
 			return false;
 		}
-
+		if (!checkNpcPrivate(handler, target))
+			return false;
 		int choix = atoi(args);
 		uint32 spellId;
 		// number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
@@ -3466,6 +3536,8 @@ public:
 		Unit* unit = handler->getSelectedUnit();
 		if (!unit)
 			return false;
+		if (!checkNpcPrivate(handler, unit))
+			return false;
 		uint32 spellId = 55518;
 		handler->GetSession()->GetPlayer()->CastSpell(unit, spellId, true);
 		return true;
@@ -3478,6 +3550,8 @@ public:
 		Unit* unit = handler->getSelectedUnit();
 		if (!unit)
 			return false;
+		if (!checkNpcPrivate(handler, unit))
+			return false;
 		uint32 spellId = 85234;
 		handler->GetSession()->GetPlayer()->CastSpell(unit, spellId, true);
 		return true;
@@ -3489,7 +3563,8 @@ public:
 		Unit* target = handler->getSelectedUnit();
 		if (!target)
 			target = handler->GetSession()->GetPlayer();
-
+		if (!checkNpcPrivate(handler, target))
+			return false;
 		target->SetObjectScale(1);
 		target->SetSpeed(MOVE_WALK, 1, true);
 		target->SetSpeed(MOVE_RUN, 1, true);
@@ -3533,7 +3608,8 @@ public:
 		Unit* target = handler->getSelectedUnit();
 		if (!target)
 			target = handler->GetSession()->GetPlayer();
-
+		if (!checkNpcPrivate(handler, target))
+			return false;
 		// check online security
 		else if (target->GetTypeId() == TYPEID_PLAYER && handler->HasLowerSecurity(target->ToPlayer(), ObjectGuid::Empty))
 			return false;
@@ -3554,7 +3630,8 @@ public:
 			handler->SetSentErrorMessage(true);
 			return false;
 		}
-
+		if (!checkNpcPrivate(handler, target))
+			return false;
 		// number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
 		uint32 spellId = 169471;
 
@@ -3717,6 +3794,8 @@ public:
 			return false;
 
 		if (!target)
+			return false;
+		if (!checkNpcPrivate(handler, target))
 			return false;
 
 		TC_LOG_DEBUG("chat.log.whisper", "Negre de %s fait un .mount", handler->GetSession()->GetPlayer()->GetName().c_str());
@@ -4013,7 +4092,30 @@ public:
 		return true;
 	}
 
+	static bool HandleCleanInventoryCommand(ChatHandler* handler, const char* args) //Cmd à retest
+	{
+		Player* player = handler->GetSession()->GetPlayer();
+		for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
+		{
+			if (Bag* bag = player->GetBagByPos(i))
+			{
+				handler->PSendSysMessage("num sac = %u", i - 18);
+				for (uint8 j = 0; j < bag->GetBagSize(); ++j)
+				{
+					if (Item* item = player->GetItemByPos(i, j))
+					{
+						handler->PSendSysMessage("Item num %u du sac %u deleted ", j , i);
+						bag->RemoveItem(j, true);
+						//uint32 itemId = item->GetTemplate()->GetId();
+						//player->DestroyItemCount(itemId, -1, true, false); //36*3 + 16 << 150, histoire d'etre sûr à test
+					}
+						
+				}
+			}
+		}
 
+		return true;
+	}
 };
 
 void AddSC_misc_commandscript()

@@ -236,7 +236,44 @@ public:
         };
         return commandTable;
     }
-
+	static bool checkNpcPrivate(ChatHandler* handler, Unit* unit, uint32 entryArgs)
+	{
+		uint32 entry;
+		if (entryArgs == 0)
+		{
+			if (!unit)
+				return true;
+			if (unit->GetTypeId() == TYPEID_PLAYER)
+				return true;
+			else 
+				entry = unit->GetEntry();
+		} 
+		else
+			entry = entryArgs;
+		PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATUREPRIVATE);
+		stmt->setUInt32(0, entry);
+		PreparedQueryResult reqResult = WorldDatabase.Query(stmt);
+		if (!reqResult)
+		{
+			return true;
+		}
+		Field* field = reqResult->Fetch();
+		uint32 sqlEntry = field[0].GetUInt32();
+		if (entry == sqlEntry)
+		{
+			if (handler->GetSession()->GetSecurity() >= 2)
+			{
+				handler->SendSysMessage("Fais gaffe c'est un npc locked ca");
+				return true;
+			}
+			else
+			{
+				handler->SendSysMessage("Ce pnj est modifiable uniquement par le staff.");
+				return false;
+			}
+		}
+		return true;
+	}
     //add spawn of creature
     static bool HandleNpcAddCommand(ChatHandler* handler, char const* args)
     {
@@ -250,6 +287,8 @@ public:
         uint32 id  = atoi(charID);
         if (!sObjectMgr->GetCreatureTemplate(id))
             return false;
+		if (!checkNpcPrivate(handler,NULL,id))
+			return false;
 		
 		TC_LOG_DEBUG("chat.log.whisper", "%s a .npc add %d", handler->GetSession()->GetPlayer()->GetName().c_str(), id);
 
@@ -348,6 +387,8 @@ public:
         }
 
         uint32 vendor_entry = vendor->GetEntry();
+		if (!checkNpcPrivate(handler, NULL, vendor_entry))
+			return false;
 
         if (!sObjectMgr->IsVendorItemValid(vendor_entry, itemId, maxcount, incrtime, extendedcost, type, handler->GetSession()->GetPlayer()))
         {
@@ -382,7 +423,8 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-
+		if (!checkNpcPrivate(handler, NULL, data->id))
+			return false;
         int wait = waitStr ? atoi(waitStr) : 0;
 
         if (wait < 0)
@@ -433,6 +475,8 @@ public:
             return false;
         }
         Creature* creature = unit->ToCreature();
+		if (!checkNpcPrivate(handler, creature, 0))
+			return false;
         if (creature->UpdateEntry(newEntryNum))
             handler->SendSysMessage(LANG_DONE);
         else
@@ -461,6 +505,8 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
+		if (!checkNpcPrivate(handler, creature, 0))
+			return false;
 
         if (creature->IsPet())
         {
@@ -509,6 +555,8 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
+		if (!checkNpcPrivate(handler, unit, 0))
+			return false;
 
         // Delete the creature
         unit->CombatStop();
@@ -533,7 +581,8 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-
+		if (!checkNpcPrivate(handler, vendor, 0))
+			return false;
         char* pitem  = handler->extractKeyFromLink((char*)args, "Hitem");
         if (!pitem)
         {
@@ -581,6 +630,8 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
+		if (!checkNpcPrivate(handler, creature, 0))
+			return false;
 
         creature->setFaction(factionId);
 
@@ -617,7 +668,8 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-
+		if (!checkNpcPrivate(handler, creature, 0))
+			return false;
         creature->SetUInt64Value(UNIT_NPC_FLAGS, npcFlags);
 
         PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_NPCFLAG);
@@ -658,7 +710,8 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-
+		if (!checkNpcPrivate(handler, creature, 0))
+			return false;
         creature->AI()->SetData(data_1, data_2);
         std::string AIorScript = !creature->GetAIName().empty() ? "AI type: " + creature->GetAIName() : (!creature->GetScriptName().empty() ? "Script Name: " + creature->GetScriptName() : "No AI or Script Name Set");
         handler->PSendSysMessage(LANG_NPC_SETDATA, creature->GetGUID().ToString().c_str(), creature->GetName().c_str(), data_1, data_2, AIorScript.c_str());
@@ -677,7 +730,8 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-
+		if (!checkNpcPrivate(handler, creature, 0))
+			return false;
         // Follow player - Using pet's default dist and angle
         creature->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, creature->GetFollowAngle());
 
@@ -695,6 +749,8 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
+		if (!checkNpcPrivate(handler, target, 0))
+			return false;
 
         CreatureTemplate const* cInfo = target->GetCreatureTemplate();
 
@@ -815,7 +871,6 @@ public:
         ObjectGuid::LowType lowguid = UI64LIT(0);
 
         Creature* creature = handler->getSelectedCreature();
-
         if (!creature)
         {
             // number or [name] Shift-click form |color|Hcreature:creature_guid|h[name]|h|r
@@ -833,7 +888,8 @@ public:
                 handler->SetSentErrorMessage(true);
                 return false;
             }
-
+			if (!checkNpcPrivate(handler, NULL, data->id))
+				return false;
             uint32 map_id = data->mapid;
 
             if (handler->GetSession()->GetPlayer()->GetMapId() != map_id)
@@ -845,6 +901,8 @@ public:
         }
         else
         {
+			if (!checkNpcPrivate(handler, creature, 0))
+				return false;
             lowguid = creature->GetSpawnId();
         }
 
@@ -897,7 +955,8 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-
+		if (!checkNpcPrivate(handler, target, 0))
+			return false;
         target->SetUInt32Value(UNIT_NPC_EMOTESTATE, emote);
 
         return true;
@@ -919,7 +978,8 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-
+		if (!checkNpcPrivate(handler, creature, 0))
+			return false;
         creature->SetDisplayId(displayId);
         creature->SetNativeDisplayId(displayId);
 
@@ -1020,9 +1080,13 @@ public:
                     handler->SetSentErrorMessage(true);
                     return false;
                 }
+				if (!checkNpcPrivate(handler, NULL, data->id))
+					return false;
             }
             else
             {
+				if (!checkNpcPrivate(handler, creature, 0))
+					return false;
                 lowguid = creature->GetSpawnId();
             }
         }
@@ -1090,7 +1154,8 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-
+		if (!checkNpcPrivate(handler, creature, 0))
+			return false;
         creature->ClearPhases();
 
         for (uint32 id : sDB2Manager.GetPhasesForGroup(phaseGroupId))
@@ -1120,7 +1185,8 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-
+		if (!checkNpcPrivate(handler, creature, 0))
+			return false;
         creature->ClearPhases();
         creature->SetInPhase(phase, true, true);
         creature->SetDBPhase(phase);
@@ -1149,7 +1215,8 @@ public:
 
         Creature* creature = handler->getSelectedCreature();
         ObjectGuid::LowType guidLow = UI64LIT(0);
-
+		if (!checkNpcPrivate(handler, creature, 0))
+			return false;
         if (creature)
             guidLow = creature->GetSpawnId();
         else
@@ -1198,7 +1265,8 @@ public:
 
         Creature* creature = handler->getSelectedCreature();
         ObjectGuid::LowType guidLow = UI64LIT(0);
-
+		if (!checkNpcPrivate(handler, creature, 0))
+			return false;
         if (creature)
             guidLow = creature->GetSpawnId();
         else
@@ -1229,7 +1297,8 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-
+		if (!checkNpcPrivate(handler, creature, 0))
+			return false;
         creature->Say(args, LANG_UNIVERSAL);
 
         // make some emotes
@@ -1258,7 +1327,8 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-
+		if (!checkNpcPrivate(handler, creature, 0))
+			return false;
         // creature->TextEmote(args);
 		creature->Talk(args, CHAT_MSG_EMOTE, LANG_UNIVERSAL, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), nullptr);
 
@@ -1277,7 +1347,8 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-
+		if (!checkNpcPrivate(handler, creature, 0))
+			return false;
         if (/*creature->GetMotionMaster()->empty() ||*/
             creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != FOLLOW_MOTION_TYPE)
         {
@@ -1329,7 +1400,8 @@ public:
 			handler->SetSentErrorMessage(true);
 			return false;
 		}
-
+		if (!checkNpcPrivate(handler, creature, 0))
+			return false;
 		//ObjectGuid receiver_guid = ObjectGuid::Create<HighGuid::Player>(strtoull(receiver_str, nullptr, 10));
 		//Player* receiver = ObjectAccessor::FindPlayer(receiver_guid);
 		// check online security
@@ -1358,7 +1430,8 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-
+		if (!checkNpcPrivate(handler, creature, 0))
+			return false;
         creature->Yell(args, LANG_UNIVERSAL);
 
         // make an emote
@@ -1382,7 +1455,8 @@ public:
         uint32 id = atoi(charID);
         if (!id)
             return false;
-
+		if (!checkNpcPrivate(handler, NULL, id))
+			return false;
         if (!sObjectMgr->GetCreatureTemplate(id))
             return false;
 
@@ -1401,7 +1475,8 @@ public:
             handler->SetSentErrorMessage (true);
             return false;
         }
-
+		if (!checkNpcPrivate(handler, creatureTarget, 0))
+			return false;
         Player* player = handler->GetSession()->GetPlayer();
 
         if (!player->GetPetGUID().IsEmpty())
@@ -1472,7 +1547,8 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-
+		if (!checkNpcPrivate(handler, creature, 0))
+			return false;
         ObjectGuid::LowType lowguid = creature->GetSpawnId();
         if (creature->GetFormation())
         {
@@ -1525,7 +1601,8 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-
+		if (!checkNpcPrivate(handler, creature, 0))
+			return false;
         if (!creature->GetSpawnId())
         {
             handler->PSendSysMessage("Selected %s isn't in creature table", creature->GetGUID().ToString().c_str());
@@ -1633,7 +1710,8 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-
+		if (!checkNpcPrivate(handler, target, 0))
+			return false;
         target->SetUInt32Value(UNIT_NPC_EMOTESTATE, emote);
 		
 		//Coté SQL
@@ -1674,7 +1752,8 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-		
+		if (!checkNpcPrivate(handler, target, 0))
+			return false;
 		uint32 spellId = handler->extractSpellIdFromLink((char*)args);
 
 		if (spellId == 172036 || spellId == 142873 || spellId == 163465 ||
@@ -1746,7 +1825,8 @@ public:
 			handler->SetSentErrorMessage(true);
 			return false;
 		}
-
+		if (!checkNpcPrivate(handler, target, 0))
+			return false;
 		target->Mount(mount);
 
 
@@ -1786,7 +1866,8 @@ public:
 			handler->SetSentErrorMessage(true);
 			return false;
 		}
-
+		if (!checkNpcPrivate(handler, target, 0))
+			return false;
 		std::string argstr = (char*)args;
 
 		if (argstr == "on")

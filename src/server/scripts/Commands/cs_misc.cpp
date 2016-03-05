@@ -158,14 +158,12 @@ public:
 		PreparedQueryResult reqResult = WorldDatabase.Query(stmt);
 		if (!reqResult)
 		{
-			handler->SendSysMessage("No select");
 			return true;
 		}
 		Field* field = reqResult->Fetch();
 		uint32 sqlEntry = field[0].GetUInt32();
 		if (entry == sqlEntry)
 		{
-			handler->PSendSysMessage("Fetch : %u", sqlEntry);
 			if (handler->GetSession()->GetSecurity() >= 2)
 			{
 				handler->SendSysMessage("Fais gaffe c'est un npc locked ca");

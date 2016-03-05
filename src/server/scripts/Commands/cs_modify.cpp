@@ -82,6 +82,40 @@ public:
         return commandTable;
     }
 
+	static bool checkNpcPrivate(ChatHandler* handler, Unit* unit)
+	{
+		if (unit->GetTypeId() == TYPEID_PLAYER)
+			return true;
+		uint32 entry = unit->GetEntry();
+		handler->PSendSysMessage("%u", entry);
+
+		PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATUREPRIVATE);
+		stmt->setUInt32(0, entry);
+		PreparedQueryResult reqResult = WorldDatabase.Query(stmt);
+		if (!reqResult)
+		{
+			handler->SendSysMessage("No select");
+			return true;
+		}
+		Field* field = reqResult->Fetch();
+		uint32 sqlEntry = field[0].GetUInt32();
+		if (entry == sqlEntry)
+		{
+			handler->PSendSysMessage("Fetch : %u", sqlEntry);
+			if (handler->GetSession()->GetSecurity() >= 2)
+			{
+				handler->SendSysMessage("Fais gaffe c'est un npc locked ca");
+				return true;
+			}
+			else
+			{
+				handler->SendSysMessage("Ce pnj est modifiable uniquement par le staff.");
+				return false;
+			}
+		}
+		return true;
+	}
+
     //Edit Player HP
     static bool HandleModifyHPCommand(ChatHandler* handler, const char* args)
     {
@@ -284,6 +318,8 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
+		if (!checkNpcPrivate)
+			return false;
 
         if (!pfactionid)
         {
@@ -684,6 +720,9 @@ public:
             return false;
         }
 
+		if (!checkNpcPrivate(handler, target))
+			return false;
+
         if (Player* player = target->ToPlayer())
         {
             // check online security
@@ -1067,7 +1106,8 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-
+		if (!checkNpcPrivate)
+			return false;
         // check online security
         if (target->GetTypeId() == TYPEID_PLAYER && handler->HasLowerSecurity(target->ToPlayer(), ObjectGuid::Empty))
             return false;
@@ -1261,7 +1301,8 @@ public:
         Unit* target = handler->getSelectedUnit();
         if (!target)
             target = handler->GetSession()->GetPlayer();
-
+		if (!checkNpcPrivate(handler, target))
+			return false;
         // check online security
         else if (target->GetTypeId() == TYPEID_PLAYER && handler->HasLowerSecurity(target->ToPlayer(), ObjectGuid::Empty))
             return false;
@@ -1304,7 +1345,8 @@ public:
         Unit* target = handler->getSelectedUnit();
         if (!target)
             target = handler->GetSession()->GetPlayer();
-
+		if (!checkNpcPrivate(handler, target))
+			return false;
         target->SetInPhase(phase, true, !target->IsInPhase(phase));
 
         if (target->GetTypeId() == TYPEID_PLAYER)
@@ -1411,11 +1453,11 @@ public:
         Unit* target = handler->getSelectedUnit();
         if (!target)
             target = handler->GetSession()->GetPlayer();
-
         // check online security
         else if (target->GetTypeId() == TYPEID_PLAYER && handler->HasLowerSecurity(target->ToPlayer(), ObjectGuid::Empty))
             return false;
-
+		if (!checkNpcPrivate(handler, target))
+			return false;
         target->DeMorph();
         
 		//PermaMorph

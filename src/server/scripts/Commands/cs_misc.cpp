@@ -143,6 +143,7 @@ public:
 			{ "closerequete", rbac::RBAC_PERM_COMMAND_KICK, false, &HandleCloseRequeteCommand, "" },
 			{ "randsay", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleRandomSayCommand, "" },
 			{ "randmp", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleRandomMPCommand, "" },
+			{ "move", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleMoveCommand, "" },
         };
         return commandTable;
     }
@@ -4204,6 +4205,73 @@ public:
 		handler->PSendSysMessage(msg);
 		return true;
 	}
+	static bool HandleMoveCommand(ChatHandler* handler, const char* args)
+	{
+		if (!*args)
+		{
+			handler->SendSysMessage("Entrees non valides");
+			return false;
+		}
+		char* temp = (char*)args;
+		char* str1 = strtok(temp, " ");
+		char* str2 = strtok(NULL, "\0");
+		Player* player = handler->GetSession()->GetPlayer();
+		float x = player->GetPositionX();
+		float y = player->GetPositionY();
+		float z = player->GetPositionZ();
+		float rot = player->GetOrientation();
+		player->SetCanFly(true);
+		if (strcmp(str1, "x") == 0)
+		{
+			if (str2 != NULL)
+			{
+				x = player->GetPositionX() +atof(str2);
+			}
+			else
+			{
+				handler->SendSysMessage("Entrees non valides");
+				return false;
+			}
+		}
+		else if (strcmp(str1, "y") == 0)
+		{
+			if (str2 != NULL)
+			{
+				y = player->GetPositionY() +atof(str2);
+			}
+			else
+			{
+				handler->SendSysMessage("Entrees non valides");
+				return false;
+			}
+		}
+		else if (strcmp(str1, "z") == 0)
+		{
+			if (str2 != NULL)
+			{
+				z = player->GetPositionZ() + atof(str2);
+			}
+			else
+			{
+				handler->SendSysMessage("Entrees non valides");
+				return false;
+			}
+		}
+		else
+		{
+			float nb = atof(str1);
+			x = player->GetPositionX()+ (nb*cos((double)rot));
+			y = player->GetPositionY() + (nb*sin((double)rot));
+		}
+		//player->GetMotionMaster()->MovePoint(0, x, y, z);
+		//Position pos = Position(x, y, z, rot);
+		//player->MovePosition(pos, 50, 0);
+		WorldLocation position = WorldLocation(player->GetMapId(), x, y, z, rot);
+		player->TeleportTo(position);
+		handler->PSendSysMessage("Position : x = %5.3f ; y = %5.3f ; z = %5.3f", x, y, z);
+		return true;
+	}
+	
 };
 
 void AddSC_misc_commandscript()

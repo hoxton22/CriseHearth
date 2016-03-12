@@ -44,6 +44,7 @@ public:
             { "status",         rbac::RBAC_PERM_COMMAND_CHEAT_STATUS,    false, &HandleCheatStatusCommand,    "" },
             { "taxi",           rbac::RBAC_PERM_COMMAND_CHEAT_TAXI,      false, &HandleTaxiCheatCommand,      "" },
             { "explore",        rbac::RBAC_PERM_COMMAND_CHEAT_EXPLORE,   false, &HandleExploreCheatCommand,   "" },
+			{ "noclip",         rbac::RBAC_PERM_COMMAND_CHEAT_EXPLORE,   false, &HandleNoclipCheatCommand, "" },
 
         };
 
@@ -282,6 +283,36 @@ public:
 
         return true;
     }
+
+	static bool HandleNoclipCheatCommand(ChatHandler* handler, const char* args)
+	{
+		if (!handler->GetSession() && !handler->GetSession()->GetPlayer())
+			return false;
+
+		std::string argstr = (char*)args;
+
+		Player* target = handler->GetSession()->GetPlayer();
+
+		if (argstr == "on")
+		{
+			// target->SetCommandStatusOff(CHEAT_WATERWALK);
+			target->SetCollision(false);
+			target->SetCanFly(true);
+			handler->SendSysMessage("Noclip activé !.");
+			return true;
+		}
+		else if (argstr == "off")
+		{
+			// target->SetCommandStatusOn(CHEAT_WATERWALK);
+			target->SetCollision(true);
+			target->SetCanFly(true);
+			target->SetCanFly(false);
+			handler->SendSysMessage("Noclip désactivé !");
+			return true;
+		}
+
+		return false;
+	}
 };
 
 void AddSC_cheat_commandscript()

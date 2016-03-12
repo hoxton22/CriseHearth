@@ -141,7 +141,8 @@ public:
 			{ "veilleur", rbac::RBAC_PERM_COMMAND_KICK, false, &HandleVeilleurCommand, "" },
 			{ "veilleurlist", rbac::RBAC_PERM_COMMAND_KICK, false, &HandleVeilleurListCommand, "" },
 			{ "closerequete", rbac::RBAC_PERM_COMMAND_KICK, false, &HandleCloseRequeteCommand, "" },
-			//{ "cleaninv", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleCleanInventoryCommand, "" },
+			{ "randsay", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleRandomSayCommand, "" },
+			{ "randmp", rbac::RBAC_PERM_COMMAND_AURA, false, &HandleRandomMPCommand, "" },
         };
         return commandTable;
     }
@@ -4090,28 +4091,117 @@ public:
 		return true;
 	}
 
-	static bool HandleCleanInventoryCommand(ChatHandler* handler, const char* args) //Cmd à retest
+	static bool HandleRandomSayCommand(ChatHandler* handler, const char* args) //Cmd à retest
 	{
-		Player* player = handler->GetSession()->GetPlayer();
-		for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
+		char* temp = (char*)args;
+		char* str1 = strtok(temp, "-");
+		char* str2 = strtok(NULL, ";");
+		char* str3 = strtok(NULL, "\0");
+		int minStr = 1;
+		int maxStr = 100;
+		int master = 0;
+		if (str1 != NULL)
 		{
-			if (Bag* bag = player->GetBagByPos(i))
-			{
-				handler->PSendSysMessage("num sac = %u", i - 18);
-				for (uint8 j = 0; j < bag->GetBagSize(); ++j)
-				{
-					if (Item* item = player->GetItemByPos(i, j))
-					{
-						handler->PSendSysMessage("Item num %u du sac %u deleted ", j , i);
-						bag->RemoveItem(j, true);
-						//uint32 itemId = item->GetTemplate()->GetId();
-						//player->DestroyItemCount(itemId, -1, true, false); //36*3 + 16 << 150, histoire d'etre sûr à test
-					}
-						
-				}
-			}
+			minStr = atoi(str1);
+		}
+		if (str2 != NULL)
+		{
+			maxStr = atoi(str2);
+		}
+		else
+		{
+			maxStr = minStr;
+			minStr = 1;
+		}
+		if (str3 != NULL && handler->GetSession()->GetSecurity() >= 3)
+		{
+			master = atoi(str3);
 		}
 
+		if (minStr <= 0 || minStr > maxStr || maxStr > 9999 || master > maxStr)
+		{
+			handler->SendSysMessage("Entrees non valides");
+			return false;
+		}
+		uint32 min = (uint32)minStr;
+		uint32 max = (uint32)maxStr;
+		uint32 roll;
+		if (master == 0)
+		{
+			roll = urand(min, max);
+		}
+		else
+		{
+			roll = (uint32)master;
+		}
+
+		Player* player = handler->GetSession()->GetPlayer();
+		std::string playerName = player->GetName();
+		char msg[255];
+		sprintf(msg, "%s a fait un jet de %u (%u-%u) [Rand en /dire]", playerName.c_str(), roll, min, max);
+		player->Talk(msg, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), nullptr);
+		return true;
+	}
+
+	static bool HandleRandomMPCommand(ChatHandler* handler, const char* args) //Cmd à retest
+	{
+		char* temp = (char*)args;
+		char* str1 = strtok(temp, "-");
+		char* str2 = strtok(NULL, ";");
+		char* str3 = strtok(NULL, "\0");
+		int minStr = 1;
+		int maxStr = 100;
+		int master = 0;
+		if (str1 != NULL)
+		{
+			minStr = atoi(str1);
+		}
+		if (str2 != NULL)
+		{
+			maxStr = atoi(str2);
+		}
+		else
+		{
+			maxStr = minStr;
+			minStr = 1;
+		}
+		if (str3 != NULL && handler->GetSession()->GetSecurity() >= 3)
+		{
+			master = atoi(str3);
+		}
+
+		if (minStr <= 0 || minStr > maxStr || maxStr > 9999 || master > maxStr)
+		{
+			handler->SendSysMessage("Entrees non valides");
+			return false;
+		}
+		uint32 min = (uint32)minStr;
+		uint32 max = (uint32)maxStr;
+		uint32 roll;
+		if (master == 0)
+		{
+			roll = urand(min, max);
+		}
+		else
+		{
+			roll = (uint32)master;
+		}
+
+		Player* player = handler->GetSession()->GetPlayer();
+		std::string playerName = player->GetName();
+		char msg[255];
+		sprintf(msg, "%s a fait un jet de %u (%u-%u) [Rand en privé]", playerName.c_str(), roll, min, max);
+		Unit* target = player->GetSelectedUnit();
+		if (target->GetTypeId() == TYPEID_PLAYER)
+		{
+			Player* targetPlayer = player->GetSelectedPlayer();
+			ChatHandler(targetPlayer->GetSession()).PSendSysMessage(msg);
+		}
+		else
+		{
+			handler->SendSysMessage("Vous n'avez cible personne, ce rand ne sera visible que par vous");
+		}
+		handler->PSendSysMessage(msg);
 		return true;
 	}
 };

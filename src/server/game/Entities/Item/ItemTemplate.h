@@ -669,8 +669,8 @@ struct ItemTemplate
     uint32 GetRequiredSkill() const { return ExtendedData->RequiredSkill; }
     uint32 GetRequiredSkillRank() const { return ExtendedData->RequiredSkillRank; }
     uint32 GetRequiredSpell() const { return ExtendedData->RequiredSpell; }
-    uint32 GetRequiredReputationFaction() const { return ExtendedData->RequiredReputationFaction; }
-    uint32 GetRequiredReputationRank() const { return ExtendedData->RequiredReputationRank; }
+    uint32 GetRequiredReputationFaction() const { return 0; }
+    uint32 GetRequiredReputationRank() const { return 0; }
     uint32 GetMaxCount() const { return ExtendedData->MaxCount; }
     uint32 GetContainerSlots() const { return ExtendedData->ContainerSlots; }
     int32 GetItemStatType(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->ItemStatType[index]; }

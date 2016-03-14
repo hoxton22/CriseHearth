@@ -318,7 +318,7 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-		if (!checkNpcPrivate)
+		if (!checkNpcPrivate(handler, target))
 			return false;
 
         if (!pfactionid)
@@ -1106,7 +1106,7 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-		if (!checkNpcPrivate)
+		if (!checkNpcPrivate(handler, target))
 			return false;
         // check online security
         if (target->GetTypeId() == TYPEID_PLAYER && handler->HasLowerSecurity(target->ToPlayer(), ObjectGuid::Empty))

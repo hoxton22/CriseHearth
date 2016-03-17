@@ -543,6 +543,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //481
     &AuraEffect::HandleNULL,                                      //482
     &AuraEffect::HandleNULL,                                      //483
+	&AuraEffect::HandleNULL,                                      //484 CAUSE CRASH
 };
 
 AuraEffect::AuraEffect(Aura* base, uint32 effIndex, int32 *baseAmount, Unit* caster) :

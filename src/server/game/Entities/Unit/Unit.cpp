@@ -323,7 +323,7 @@ Unit::~Unit()
     delete movespline;
     delete _spellHistory;
 
-    ASSERT(!m_duringRemoveFromWorld);
+    /*ASSERT(!m_duringRemoveFromWorld);
     ASSERT(!m_attacking);
     ASSERT(m_attackers.empty());
     ASSERT(m_sharedVision.empty());
@@ -332,7 +332,7 @@ Unit::~Unit()
     ASSERT(m_ownedAuras.empty());
     ASSERT(m_removedAuras.empty());
     ASSERT(m_gameObj.empty());
-    ASSERT(m_dynObj.empty());
+    ASSERT(m_dynObj.empty());*/
 }
 
 // Check if unit in combat with specific unit

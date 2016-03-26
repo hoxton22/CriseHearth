@@ -1711,7 +1711,7 @@ void GameObject::Use(Unit* user)
 					float x = fields[0].GetFloat();
 					float y = fields[1].GetFloat();
 					float z = fields[2].GetFloat();
-					uint16 mapId = fields[3].GetUInt64();
+					uint16 mapId = fields[3].GetUInt16();
 					float o = fields[4].GetFloat();
 
 					Player* player = user->ToPlayer();

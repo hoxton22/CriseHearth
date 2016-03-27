@@ -110,37 +110,6 @@ public:
 		object->UpdateObjectVisibility();
 		object->SaveToDB();
 
-		/* Ajout GM + phase :
-
-		if (handler->GetSession()->GetPlayer()->IsGameMaster())
-		{
-		handler->GetSession()->GetPlayer()->SetGameMaster(false);
-		object->SetPhaseMask(2, true);
-		Sleep(2200);
-		object->SetPhaseMask(1, true);
-		handler->GetSession()->GetPlayer()->SetGameMaster(true);
-		}
-		else
-		{
-		object->SetPhaseMask(2, true);
-		Sleep(2200);
-		object->SetPhaseMask(1, true);
-		handler->GetSession()->GetPlayer()->SetGameMaster(true);
-		}
-		*/
-
-
-		/*
-		uint32 spellId = 177398;
-		Aura::TryRefreshStackOrCreate(sSpellMgr->GetSpellInfo(spellId), MAX_EFFECT_MASK, _player, _player);
-
-		Sleep(2200);
-		while (_player->HasAura(spellId, _player->GetGUID()))
-		{
-		_player->RemoveAurasDueToSpell(spellId);
-		}
-		*/
-
 		Player* _caller = handler->GetSession()->GetPlayer();
 		Map::PlayerList const& PlayerList = _caller->GetMap()->GetPlayers();
 		for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
@@ -279,7 +248,7 @@ public:
             return false;
         }
 
-        object->CopyPhaseFrom(player);
+        object->CopyPhaseFrom(player, true);
 
         if (spawntimeSecs)
         {
@@ -628,42 +597,53 @@ public:
         return true;
     }
 
-    //set phasemask for selected object
-    static bool HandleGameObjectSetPhaseCommand(ChatHandler* /*handler*/, char const* /*args*/)
+    // Code Style = )
+    static bool HandleGameObjectSetPhaseCommand(ChatHandler* handler, char const* args)
     {
-        /*// number or [name] Shift-click form |color|Hgameobject:go_id|h[name]|h|r
-        char* id = handler->extractKeyFromLink((char*)args, "Hgameobject");
-        if (!id)
-            return false;
+			if (!*args)
+				return false;
 
-        uint32 guidLow = atoi(id);
-        if (!guidLow)
-            return false;
+			char* id = handler->extractKeyFromLink((char*)args, "Hgameobject");
+			if (!id)
+				return false;
 
-        GameObject* object = NULL;
+			uint32 guidLow = atoi(id);
+			if (!guidLow)
+				return false;
 
-        // by DB guid
-        if (GameObjectData const* gameObjectData = sObjectMgr->GetGOData(guidLow))
-            object = handler->GetObjectGlobalyWithGuidOrNearWithDbGuid(guidLow, gameObjectData->id);
+			GameObject* object = NULL;
 
-        if (!object)
-        {
-            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, guidLow);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
+			// via db
+			if (GameObjectData const* goData = sObjectMgr->GetGOData(guidLow))
+				object = handler->GetObjectGlobalyWithGuidOrNearWithDbGuid(guidLow, goData->id);
 
-        char* phase = strtok (NULL, " ");
-        uint32 phaseMask = phase ? atoi(phase) : 0;
-        if (phaseMask == 0)
+			if (!object)
+			{
+				handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, guidLow);
+				handler->SetSentErrorMessage(true);
+				return false;
+			}
+		char* phase = strtok(NULL, " ");
+		uint32 phaseId = (uint32)atoi(phase);
+        if (phaseId == 0)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);
             handler->SetSentErrorMessage(true);
             return false;
         }
+		
+		object->ClearPhases();
+		object->SetInPhase(phaseId, true, true);
+		object->SetDBPhase(phaseId);
 
-        object->SetPhaseMask(phaseMask, true);
-        object->SaveToDB();*/
+		object->SaveToDB();
+
+		uint64 guid = object->GetGUID().GetCounter();
+		PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_GOB_SET_PHASE);
+		stmt->setUInt32(0, phaseId);
+		stmt->setUInt64(1, guid);
+		WorldDatabase.Execute(stmt);
+
         return true;
     }
 

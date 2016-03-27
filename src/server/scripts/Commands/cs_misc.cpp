@@ -188,29 +188,36 @@ public:
 		ObjectGuid::LowType guid = handler->GetSession()->GetAccountGUID().GetCounter();
 		switch (itemId){
 			//Premiere semaine
-		case 500247:{if (guid != 143) privateItem = 1; return false; break; } // Dim, Tranchant de Dalaran
-		case 500267:{if (guid != 143) privateItem = 1; return false; break; }  // Dim, Héritage de Vaen'del
-		case 500039:{if (guid != 636) privateItem = 1; return false; break; } // Theodorus, Helce'Owä, le sceptre des neiges
-		case 500028:{if (guid != 69) privateItem = 1; return false; break; }  // Kehonidas , Braies du Belliciste
+		case 500247:{if (guid != 143) privateItem = 1; break; } // Dim, Tranchant de Dalaran
+		case 500267:{if (guid != 143) privateItem = 1;break; }  // Dim, Héritage de Vaen'del
+		case 500039:{if (guid != 636) privateItem = 1;break; } // Theodorus, Helce'Owä, le sceptre des neiges
+		case 500028:{if (guid != 69) privateItem = 1; break; }  // Kehonidas , Braies du Belliciste
 					//Deuxieme semaine
-		case 500564:{if (guid != 267) privateItem = 1; return false; break; }  // Bern', Le Lixaxil
-		case 500355:{if (guid != 267) privateItem = 1; return false; break; } // Bern', Véloce, la dévoreuse d'existence
-		case 500317:{if (guid != 267) privateItem = 1; return false; break; } // Bern', Véloce, la dévoreuse de magie
-		case 500272:{if (guid != 636) privateItem = 1; return false; break; } // Vénéficius, Grande lame de péril
-		case 500522:{if (guid != 5) privateItem = 1; return false; break; }  // Diantre, Lunettes rondes
+		case 500564:{if (guid != 267) privateItem = 1; break; }  // Bern', Le Lixaxil
+		case 500355:{if (guid != 267) privateItem = 1; break; } // Bern', Véloce, la dévoreuse d'existence
+		case 500317:{if (guid != 267) privateItem = 1; break; } // Bern', Véloce, la dévoreuse de magie
+		case 500272:{if (guid != 636) privateItem = 1; break; } // Vénéficius, Grande lame de péril
+		case 500522:{if (guid != 5) privateItem = 1; break; }  // Diantre, Lunettes rondes
 					//Troisième semaine
-		case 500681:{if (guid != 77 || guid != 889 || guid != 350) privateItem = 1; return false; break; } //Shalimar, Eviscératrice de la Reine Antique
-		case 500682:{if (guid != 77 || guid != 889 || guid != 350) privateItem = 1; return false; break; } //Shalimar, Vision de l'Abstraction
+		case 500681:{if (guid != 77 || guid != 889 || guid != 350) privateItem = 1; break; } //Shalimar, Eviscératrice de la Reine Antique
+		case 500682:{if (guid != 77 || guid != 889 || guid != 350) privateItem = 1; break; } //Shalimar, Vision de l'Abstraction
 
 		};
-
-		if (handler->GetSession()->GetSecurity() >= 2 && privateItem == 1)
+		if (privateItem == 1)
 		{
-			handler->SendSysMessage("Bon, écoute moi bien sac à merde. T'es qu'un simple veilleur de merde et tu t'ajoutes des items privatisé, lel.");
+			if (handler->GetSession()->GetSecurity() > = 2)
+			{
+				handler->SendSysMessage("Bon, écoute moi bien sac à merde. T'es qu'un simple veilleur de merde et tu t'ajoutes des items privatisé, lel.");
+				return true;
+			}
+			else
+				return false;
+		}
+		else
+		{
 			return true;
 		}
 
-		return true;
 	}
 
 	static bool HandleUpdateItemMyth(ChatHandler* handler, char const* args)

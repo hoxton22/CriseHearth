@@ -205,7 +205,7 @@ public:
 		};
 		if (privateItem == 1)
 		{
-			if (handler->GetSession()->GetSecurity() > = 2)
+			if (handler->GetSession()->GetSecurity() >= 2)
 			{
 				handler->SendSysMessage("Bon, écoute moi bien sac à merde. T'es qu'un simple veilleur de merde et tu t'ajoutes des items privatisé, lel.");
 				return true;

@@ -638,6 +638,11 @@ public:
 				return false;
 			}
 		char* phase = strtok(NULL, " ");
+		if (phase == NULL)
+		{
+			handler->SendSysMessage("Pas de phase, pas de set phase !");
+			return false;
+		}
 		uint32 phaseId = (uint32)atoi(phase);
         if (phaseId == 0)
         {

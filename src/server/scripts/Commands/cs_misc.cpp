@@ -4205,7 +4205,11 @@ public:
 		char msg[255];
 		sprintf(msg, "%s a fait un jet de %u (%u-%u) [Rand en privé]", playerName.c_str(), roll, min, max);
 		Unit* target = player->GetSelectedUnit();
-		if (target->GetTypeId() == TYPEID_PLAYER)
+		if (!target)
+		{
+			handler->SendSysMessage("Vous n'avez cible personne, ce rand ne sera visible que par vous");
+		}
+		else if(target->GetTypeId() == TYPEID_PLAYER)
 		{
 			Player* targetPlayer = player->GetSelectedPlayer();
 			ChatHandler(targetPlayer->GetSession()).PSendSysMessage(msg);

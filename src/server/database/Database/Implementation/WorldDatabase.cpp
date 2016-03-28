@@ -118,6 +118,8 @@ void WorldDatabaseConnection::DoPrepareStatements()
 	PrepareStatement(WORLD_UPD_CHARACTERCUSTOM_PERMAMORPH, "UPDATE character_custom SET displayId = ? WHERE playerName = ?", CONNECTION_ASYNC);
 	PrepareStatement(WORLD_UPD_CHARACTERCUSTOM_PERMASCALE, "UPDATE character_custom SET scale = ? WHERE playerName = ?", CONNECTION_ASYNC);
 	PrepareStatement(WORLD_SEL_CREATUREPRIVATE, "SELECT `entry` FROM `creature_private` WHERE `entry` = ?", CONNECTION_SYNCH);
-	PrepareStatement(WORLD_UPD_GOB_SET_PHASE, "UPDATE gameobject SET PhaseId = ? WHERE guid = ?", CONNECTION_ASYNC);
+	PrepareStatement(WORLD_INS_GAMEOBJECT_PHASE, "INSERT INTO gameobject (guid, id, map, spawnMask,PhaseId, position_x, position_y, position_z, orientation, rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state, size) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+
+
 	
 }

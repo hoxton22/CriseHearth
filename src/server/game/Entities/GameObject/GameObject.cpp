@@ -861,6 +861,75 @@ void GameObject::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
 
     WorldDatabase.CommitTransaction(trans);
 }
+void GameObject::SaveToDBWithPhase(uint32 phaseId)
+{
+	GameObjectData const* dataInit = sObjectMgr->GetGOData(m_spawnId);
+	if (!dataInit)
+	{
+		TC_LOG_ERROR("misc", "GameObject::SaveToDB failed, cannot get gameobject data!");
+		return;
+	}
+	const GameObjectTemplate* goI = GetGOInfo();
+
+	if (!goI)
+		return;
+
+	if (!m_spawnId)
+		m_spawnId = sObjectMgr->GenerateGameObjectSpawnId();
+
+	// update in loaded data (changing data only in this place)
+	GameObjectData& data = sObjectMgr->NewGOData(m_spawnId);
+
+	// data->guid = guid must not be updated at save
+	data.id = GetEntry();
+	data.mapid = GetMapId();
+	data.phaseMask = dataInit->phaseMask;
+	data.posX = GetPositionX();
+	data.posY = GetPositionY();
+	data.posZ = GetPositionZ();
+	data.orientation = GetOrientation();
+	data.rotation0 = GetFloatValue(GAMEOBJECT_PARENTROTATION + 0);
+	data.rotation1 = GetFloatValue(GAMEOBJECT_PARENTROTATION + 1);
+	data.rotation2 = GetFloatValue(GAMEOBJECT_PARENTROTATION + 2);
+	data.rotation3 = GetFloatValue(GAMEOBJECT_PARENTROTATION + 3);
+	data.spawntimesecs = m_spawnedByDefault ? m_respawnDelayTime : -(int32)m_respawnDelayTime;
+	data.animprogress = GetGoAnimProgress();
+	data.go_state = GetGoState();
+	data.spawnMask = dataInit->spawnMask;
+	data.artKit = GetGoArtKit();
+	data.size = GetFloatValue(OBJECT_FIELD_SCALE_X);
+
+	// Update in DB
+	SQLTransaction trans = WorldDatabase.BeginTransaction();
+
+	uint8 index = 0;
+
+	PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAMEOBJECT);
+	stmt->setUInt64(0, m_spawnId);
+	trans->Append(stmt);
+
+	stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_GAMEOBJECT_PHASE);
+	stmt->setUInt64(index++, m_spawnId);
+	stmt->setUInt32(index++, GetEntry());
+	stmt->setUInt16(index++, data.mapid);
+	stmt->setUInt8(index++, data.spawnMask);
+	stmt->setUInt32(index++, phaseId);
+	stmt->setFloat(index++, GetPositionX());
+	stmt->setFloat(index++, GetPositionY());
+	stmt->setFloat(index++, GetPositionZ());
+	stmt->setFloat(index++, GetOrientation());
+	stmt->setFloat(index++, GetFloatValue(GAMEOBJECT_PARENTROTATION));
+	stmt->setFloat(index++, GetFloatValue(GAMEOBJECT_PARENTROTATION + 1));
+	stmt->setFloat(index++, GetFloatValue(GAMEOBJECT_PARENTROTATION + 2));
+	stmt->setFloat(index++, GetFloatValue(GAMEOBJECT_PARENTROTATION + 3));
+	stmt->setInt32(index++, int32(m_respawnDelayTime));
+	stmt->setUInt8(index++, GetGoAnimProgress());
+	stmt->setUInt8(index++, uint8(GetGoState()));
+	stmt->setFloat(index++, GetFloatValue(OBJECT_FIELD_SCALE_X));
+	trans->Append(stmt);
+
+	WorldDatabase.CommitTransaction(trans);
+}
 
 bool GameObject::LoadGameObjectFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap)
 {

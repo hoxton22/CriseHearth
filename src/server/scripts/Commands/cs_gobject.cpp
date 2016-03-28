@@ -631,18 +631,68 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-		
-		object->ClearPhases();
+		//object->DestroyForNearbyPlayers();
+		//object->ClearPhases();
 		object->SetInPhase(phaseId, true, true);
-		object->SetDBPhase(phaseId);
+		//object->SetDBPhase(phaseId);
+		object->SaveToDBWithPhase(phaseId);
+		// "INSERT INTO gameobject (guid, id, map, spawnMask, position_x, position_y, position_z, orientation, rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state, size) 
+		//object->SaveToDB();
+		//Save To DB
+		/*uint64 guid = object->GetGUID().GetCounter();
+		uint32 entry = object->GetEntry();
+		uint32 mapId = object->GetMapId();
+		GameObjectData const* gameObjectData = sObjectMgr->GetGOData(guid);
+		uint32 spawnMask = gameObjectData->spawnMask;
+		float posX = object->GetPositionX();
+		float posY = object->GetPositionY();
+		float posZ = object->GetPositionZ();
+		float or = object->GetOrientation();
+		float rot0 = object->GetFloatValue(GAMEOBJECT_PARENTROTATION);
+		float rot1 = object->GetFloatValue(GAMEOBJECT_PARENTROTATION + 1);
+		float rot2 = object->GetFloatValue(GAMEOBJECT_PARENTROTATION + 2);
+		float rot3 = object->GetFloatValue(GAMEOBJECT_PARENTROTATION + 3);
+		uint32 spawnTimeSecs = gameObjectData->spawntimesecs;
+		uint8 anim = object->GetGoAnimProgress();
+		uint8 state = uint8(object->GetGoState());
+		float scale = object->GetObjectScale();
+		// Update in DB
+		SQLTransaction trans = WorldDatabase.BeginTransaction();
 
-		object->SaveToDB();
+		uint8 index = 0;
 
-		uint64 guid = object->GetGUID().GetCounter();
-		PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_GOB_SET_PHASE);
+		PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAMEOBJECT);
+		stmt->setUInt64(0, guid);
+		trans->Append(stmt);
+
+		stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_GAMEOBJECT_PHASE);
+		stmt->setUInt64(index++, guid);
+		stmt->setUInt32(index++, entry);
+		stmt->setUInt16(index++, mapId);
+		stmt->setUInt8(index++, spawnMask);
+		stmt->setUInt32(index++, phaseId);
+		stmt->setFloat(index++, posX);
+		stmt->setFloat(index++, posY);
+		stmt->setFloat(index++, posZ);
+		stmt->setFloat(index++, or);
+		stmt->setFloat(index++, rot0);
+		stmt->setFloat(index++, rot1);
+		stmt->setFloat(index++, rot2);
+		stmt->setFloat(index++, rot3);
+		stmt->setInt32(index++, spawnTimeSecs);
+		stmt->setUInt8(index++, anim);
+		stmt->setUInt8(index++, state);
+		stmt->setFloat(index++, scale);
+		trans->Append(stmt);
+
+		WorldDatabase.CommitTransaction(trans);
+		
+		//
+
+		/*PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_GOB_SET_PHASE);
 		stmt->setUInt32(0, phaseId);
 		stmt->setUInt64(1, guid);
-		WorldDatabase.Execute(stmt);
+		WorldDatabase.Execute(stmt);*/
 
         return true;
     }

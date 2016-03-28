@@ -909,6 +909,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
 
         void SaveToDB();
         void SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask);
+		void SaveToDBWithPhase(uint32 phaseId);
         bool LoadFromDB(ObjectGuid::LowType spawnId, Map* map) { return LoadGameObjectFromDB(spawnId, map, false); }
         bool LoadGameObjectFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap = true);
         void DeleteFromDB();

@@ -260,6 +260,7 @@ public:
         object->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), player->GetPhaseMask());
         guidLow = object->GetSpawnId();
 
+
         // delete the old object and do a clean load from DB with a fresh new GameObject instance.
         // this is required to avoid weird behavior and memory leaks
         delete object;
@@ -276,6 +277,19 @@ public:
         sObjectMgr->AddGameobjectToGrid(guidLow, ASSERT_NOTNULL(sObjectMgr->GetGOData(guidLow)));
 
         handler->PSendSysMessage(LANG_GAMEOBJECT_ADD, objectId, objectInfo->name.c_str(), guidLow, x, y, z);
+		// Save phasing
+		uint32 phaseId = 0;
+		std::string playerName = player->GetName();
+		PreparedStatement* stmtSel = WorldDatabase.GetPreparedStatement(WORLD_SEL_CHARACTERCUSTOM_ALL);
+		stmtSel->setString(0, playerName.c_str());
+		PreparedQueryResult reqResult = WorldDatabase.Query(stmtSel);
+		if (reqResult)
+		{
+			Field* field = reqResult->Fetch();
+			phaseId = field[3].GetUInt32();
+		}
+		object->SaveToDBWithPhase(phaseId);
+		object->SetInPhase(phaseId, true, true);
         return true;
     }
 

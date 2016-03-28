@@ -343,6 +343,21 @@ public:
         }
 
         sObjectMgr->AddCreatureToGrid(db_guid, sObjectMgr->GetCreatureData(db_guid));
+		// Save phasing
+		uint32 phaseId = 0;
+		std::string playerName = handler->GetSession()->GetPlayer()->GetName();
+		PreparedStatement* stmtSel = WorldDatabase.GetPreparedStatement(WORLD_SEL_CHARACTERCUSTOM_ALL);
+		stmtSel->setString(0, playerName.c_str());
+		PreparedQueryResult reqResult = WorldDatabase.Query(stmtSel);
+		if (reqResult)
+		{
+			Field* field = reqResult->Fetch();
+			phaseId = field[3].GetUInt32();
+		}
+		creature->ClearPhases();
+		creature->SetInPhase(phaseId, true, true);
+		creature->SetDBPhase(phaseId);
+		creature->SaveToDB();
         return true;
     }
 

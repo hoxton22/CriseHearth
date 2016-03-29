@@ -454,6 +454,10 @@ public:
 
 	static ObjectGuid::LowType HandleQuickGobDelCommand(ChatHandler* handler, char const* args){
 		Player* player = handler->GetSession()->GetPlayer();
+		if (player->GetSession()->GetSecurity() < 2)
+		{
+			return NULL;
+		}
 		QueryResult result;
 		GameEventMgr::ActiveEvents const& activeEventsList = sGameEventMgr->GetActiveEventList();
 

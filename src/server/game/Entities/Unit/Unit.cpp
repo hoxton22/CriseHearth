@@ -3822,11 +3822,11 @@ void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase, bool phaseid)
     {
         Aura* aura = *iter;
 
-		// Condition qui n'applique pas le unaura si il s'agit d'un spell de véhicule, donc situé dans la table npc_spell_clickspell
-		PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_NPCSPELLCLICK_SPELL);
-		stmt->setUInt64(0, aura->GetId());
-		PreparedQueryResult result = WorldDatabase.Query(stmt);
-		if (aura->GetUnitOwner() != this && !aura->GetUnitOwner()->IsInPhase(newPhase) && !result)
+	// Condition qui n'applique pas le unaura si il s'agit d'un spell de véhicule, donc situé dans la table npc_spell_clickspell
+	PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_NPCSPELLCLICK_SPELL);
+	stmt->setUInt64(0, aura->GetId());
+	PreparedQueryResult result = WorldDatabase.Query(stmt);
+	if (aura->GetUnitOwner() != this && !aura->GetUnitOwner()->IsInPhase(newPhase) && !result)
         {
             aura->Remove();
             iter = scAuras.begin();

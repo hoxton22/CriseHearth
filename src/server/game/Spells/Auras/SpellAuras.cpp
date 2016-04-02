@@ -1114,9 +1114,9 @@ bool Aura::IsSingleTargetWith(Aura const* aura) const
 
 void Aura::UnregisterSingleTarget()
 {
-    //ASSERT(m_isSingleTarget); Locked by CriseHearth
+    ASSERT(m_isSingleTarget); 
     Unit* caster = GetCaster();
-    //ASSERT(caster); Locked by CriseHearth
+    ASSERT(caster); 
     caster->GetSingleCastAuras().remove(this);
     SetIsSingleTarget(false);
 }

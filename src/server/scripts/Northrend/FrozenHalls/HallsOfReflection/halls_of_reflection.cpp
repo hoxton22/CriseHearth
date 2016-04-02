@@ -2007,6 +2007,9 @@ class at_hor_intro_start : public AreaTriggerScript
         {
             if (player->IsGameMaster())
                 return true;
+			else {
+				return true;
+			}
 
             InstanceScript* _instance = player->GetInstanceScript();
 
@@ -2033,6 +2036,9 @@ class at_hor_waves_restarter : public AreaTriggerScript
         {
             if (player->IsGameMaster())
                 return true;
+			else {
+				return true;
+			}
 
             InstanceScript* _instance = player->GetInstanceScript();
 
@@ -2068,6 +2074,9 @@ class at_hor_impenetrable_door : public AreaTriggerScript
         {
             if (player->IsGameMaster())
                 return true;
+			else {
+				return true;
+			}
 
             InstanceScript* _instance = player->GetInstanceScript();
             if (_instance->GetBossState(DATA_MARWYN) == DONE)
@@ -2088,6 +2097,9 @@ class at_hor_shadow_throne : public AreaTriggerScript
         {
             if (player->IsGameMaster())
                 return true;
+			else {
+				return true;
+			}
 
             InstanceScript* _instance = player->GetInstanceScript();
 
@@ -2709,6 +2721,9 @@ class at_hor_uther_quel_delar_start : public AreaTriggerScript
         {
             if (player->IsGameMaster())
                 return true;
+			else {
+				return true;
+			}
 
             InstanceScript* _instance = player->GetInstanceScript();
 

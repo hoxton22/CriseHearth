@@ -2943,8 +2943,8 @@ bool WorldObject::IsInPhase(WorldObject const* obj) const
     if (obj->GetPhases().empty() && IsInPhase(DEFAULT_PHASE))
         return true;
 
-    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->IsGameMaster())
-        return true;
+    /*if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->IsGameMaster())
+        return true; */
 
     return Trinity::Containers::Intersects(_phases.begin(), _phases.end(), obj->GetPhases().begin(), obj->GetPhases().end());
 }

@@ -2254,12 +2254,7 @@ void Player::SetGameMaster(bool on)
 		setFaction(35);
 		SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_GM);
 		SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_CHEAT_SPELLS);
-		//for visibility
-		m_ExtraFlags &= ~PLAYER_EXTRA_GM_ON;
-		//RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_GM);
-		//RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_CHEAT_SPELLS);
-		//
-		SetCommandStatusOn(CHEAT_GOD);
+
 		if (Pet* pet = GetPet())
 		{
 			pet->setFaction(35);
@@ -2277,11 +2272,7 @@ void Player::SetGameMaster(bool on)
 	}
 	else
 	{
-		// for visibility
-		m_ExtraFlags |= PLAYER_EXTRA_GM_ON;
-		//SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_GM);
-		//SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_CHEAT_SPELLS);
-		//
+
 		m_ExtraFlags &= ~PLAYER_EXTRA_GM_ON;
 		setFactionForRace(getRace());
 		RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_GM);

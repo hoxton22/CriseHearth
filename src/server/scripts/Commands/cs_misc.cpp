@@ -155,7 +155,7 @@ public:
 		if (unit->GetTypeId() == TYPEID_PLAYER)
 			return true;
 		uint32 entry = unit->GetEntry();
-		handler->PSendSysMessage("%u", entry);
+
 
 		PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATUREPRIVATE);
 		stmt->setUInt32(0, entry);

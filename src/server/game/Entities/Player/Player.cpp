@@ -2267,8 +2267,8 @@ void Player::SetGameMaster(bool on)
 		getHostileRefManager().setOnlineOfflineState(false);
 		CombatStopWithPets();
 
-		//m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GM, GetSession()->GetSecurity());
-		m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GM, SEC_PLAYER);
+		m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GM, GetSession()->GetSecurity());
+		//m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GM, SEC_PLAYER);
 	}
 	else
 	{

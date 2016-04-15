@@ -1365,7 +1365,7 @@ public:
 			stmtCreate->setUInt32(0, phase);
 			stmtCreate->setString(1, playerName.c_str());
 			WorldDatabase.Execute(stmtCreate);
-			handler->PSendSysMessage("Vous êtes à présent dans la phase %u", phase);
+			handler->PSendSysMessage(LANG_ENTERPHASE_OK, handler->GetSession()->GetPlayer()->GetName().c_str(), phase);
 			return true;
 		}
 		//Si pas on update la ligne
@@ -1380,9 +1380,9 @@ public:
 		stmtUpdate->setString(1, playerName.c_str());
 		WorldDatabase.Execute(stmtUpdate);
 		if (phase == 0)
-			handler->SendSysMessage("Vous sortez de la phase");
+			handler->PSendSysMessage(LANG_BYEPHASE_OK, handler->GetSession()->GetPlayer()->GetName().c_str());
 		else
-			handler->PSendSysMessage("Vous êtes à présent dans la phase %u", phase);
+			handler->PSendSysMessage(LANG_ENTERPHASE_OK, handler->GetSession()->GetPlayer()->GetName().c_str(), phase);
         return true;
     }
 

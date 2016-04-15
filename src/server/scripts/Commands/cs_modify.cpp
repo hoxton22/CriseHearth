@@ -1365,13 +1365,24 @@ public:
 			stmtCreate->setUInt32(0, phase);
 			stmtCreate->setString(1, playerName.c_str());
 			WorldDatabase.Execute(stmtCreate);
+			handler->PSendSysMessage("Vous êtes à présent dans la phase %u", phase);
 			return true;
 		}
-		//Si pas on update sa ligne
+		//Si pas on update la ligne
+		//Mais avant on check si il sort de sa phase ou pas.
+		Field* field = reqResult->Fetch();
+		uint32 phaseTable = field[3].GetUInt32();
+		if (phaseTable == phase)
+			phase = 0;
+		//Puis on update la ligne
 		PreparedStatement* stmtUpdate = WorldDatabase.GetPreparedStatement(WORLD_UPD_CHARACTERCUSTOM_PHASE);
 		stmtUpdate->setUInt32(0, phase);
 		stmtUpdate->setString(1, playerName.c_str());
 		WorldDatabase.Execute(stmtUpdate);
+		if (phase == 0)
+			handler->SendSysMessage("Vous sortez de la phase");
+		else
+			handler->PSendSysMessage("Vous êtes à présent dans la phase %u", phase);
         return true;
     }
 

@@ -118,7 +118,7 @@ public:
 		}
 		else
 		{
-			Field* field;
+			Field* field = reqResult->Fetch();
 			uint32 phase = field[3].GetUInt32();
 			object->SaveToDBWithPhase(phase);
 		}

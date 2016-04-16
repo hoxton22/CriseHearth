@@ -108,7 +108,20 @@ public:
 		object->SetObjectScale(scale);
 		object->DestroyForNearbyPlayers();
 		object->UpdateObjectVisibility();
-		object->SaveToDB();
+		std::string playerName = handler->GetSession()->GetPlayer()->GetName();
+		PreparedStatement* stmtSel = WorldDatabase.GetPreparedStatement(WORLD_SEL_CHARACTERCUSTOM_ALL);
+		stmtSel->setString(0, playerName.c_str());
+		PreparedQueryResult reqResult = WorldDatabase.Query(stmtSel);
+		if (!reqResult)
+		{
+			object->SaveToDB();
+		}
+		else
+		{
+			Field* field;
+			uint32 phase = field[3].GetUInt32();
+			object->SaveToDBWithPhase(phase);
+		}
 
 
 		Player* _caller = handler->GetSession()->GetPlayer();

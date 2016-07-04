@@ -3660,9 +3660,11 @@ public:
 		uint32 playersNum = sWorld->GetPlayerCount();
 		uint32 maxPlayersNum = sWorld->GetMaxPlayerCount();
 		std::string uptime = secsToTimeString(sWorld->GetUptime());
-
+		
 		handler->PSendSysMessage(LANG_CONNECTED_PLAYERS, playersNum, maxPlayersNum);
 		handler->PSendSysMessage(LANG_UPTIME, uptime.c_str());
+		if (sWorld->IsShuttingDown())
+			handler->PSendSysMessage(LANG_SHUTDOWN_TIMELEFT, secsToTimeString(sWorld->GetShutDownTimeLeft()).c_str());
 
 		return true;
 	}

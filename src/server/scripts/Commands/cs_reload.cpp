@@ -153,6 +153,11 @@ public:
             { "waypoint_data",                 rbac::RBAC_PERM_COMMAND_RELOAD_WAYPOINT_DATA,                    true,  &HandleReloadWpCommand,                         "" },
             { "vehicle_accessory",             rbac::RBAC_PERM_COMMAND_RELOAD_VEHICLE_ACCESORY,                 true,  &HandleReloadVehicleAccessoryCommand,           "" },
             { "vehicle_template_accessory",    rbac::RBAC_PERM_COMMAND_RELOAD_VEHICLE_TEMPLATE_ACCESSORY,       true,  &HandleReloadVehicleTemplateAccessoryCommand,   "" },
+			{ "creature_addons",			   rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_TEMPLATE,				true,  &HandleReloadCreatureAddonsCommand,			   "" },
+			{ "creature_model_info",		   rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_TEMPLATE,				true,  &HandleReloadCreatureModelInfoCommand,		   "" },
+			{ "creature_template_addons",	   rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_TEMPLATE,				true,  &HandleReloadCreatureTemplateAddonsCommand,	   "" },
+			{ "creature_equip_template",	   rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_TEMPLATE,				true,  &HandleReloadCreatureEquipTemplateCommand,      "" },
+			{ "gameobject_template",		   rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_TEMPLATE,                true,  &HandleReloadGameObjectTemplateCommand,		   "" },
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -1116,6 +1121,60 @@ public:
         handler->SendGlobalGMSysMessage("RBAC data reloaded.");
         return true;
     }
+
+	// CriseHearth Reload
+	static bool HandleReloadCreatureAddonsCommand(ChatHandler* handler, const char* /*args*/)
+	{
+		TC_LOG_INFO("misc", "Reloading creature addons...");
+		sObjectMgr->LoadCreatureAddons();
+		handler->SendGlobalGMSysMessage("DB table `creature_addons` reloaded.");
+
+		handler->SendGlobalGMSysMessage("Creature addons reloaded.");
+		return true;
+	}
+	
+	static bool HandleReloadCreatureModelInfoCommand(ChatHandler* handler, const char* /*args*/)
+	{
+		TC_LOG_INFO("misc", "Reloading creature model info...");
+		sObjectMgr->LoadCreatureModelInfo();
+		handler->SendGlobalGMSysMessage("DB table `creature_model_info` reloaded.");
+
+		handler->SendGlobalGMSysMessage("Creature model info reloaded.");
+		return true;
+	}
+
+	static bool HandleReloadCreatureTemplateAddonsCommand(ChatHandler* handler, const char* /*args*/)
+	{
+		TC_LOG_INFO("misc", "Reloading creature template addons info...");
+		sObjectMgr->LoadCreatureTemplateAddons();
+		handler->SendGlobalGMSysMessage("DB table `creature_template_addons` reloaded.");
+
+		handler->SendGlobalGMSysMessage("Creature template addons reloaded.");
+		return true;
+	}
+	
+	static bool HandleReloadCreatureEquipTemplateCommand(ChatHandler* handler, const char* /*args*/)
+	{
+		TC_LOG_INFO("misc", "Reloading creature equip template info...");
+		sObjectMgr->LoadEquipmentTemplates();
+		handler->SendGlobalGMSysMessage("DB table `creature_equip_template` reloaded.");
+
+		handler->SendGlobalGMSysMessage("Creature equip template reloaded.");
+		return true;
+	}
+	
+	static bool HandleReloadGameObjectTemplateCommand(ChatHandler* handler, const char* /*args*/)
+	{
+		TC_LOG_INFO("misc", "Reloading gameobject template info...");
+		sObjectMgr->LoadGameObjectTemplate();
+		handler->SendGlobalGMSysMessage("DB table `gameobject_template` reloaded.");
+
+		handler->SendGlobalGMSysMessage("Gameobject template reloaded.");
+		return true;
+	}
+	
+
+
 };
 
 void AddSC_reload_commandscript()
